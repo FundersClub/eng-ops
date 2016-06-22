@@ -1,10 +1,8 @@
 # eng-ops
 
-We have API access to both ZenHub and GitHub:
-
-https://github.com/ZenHubIO/API
-
-https://developer.github.com/v3/issues/
+We have API access to both ZenHub and GitHub:  
+https://github.com/ZenHubIO/API  
+https://developer.github.com/v3/issues/  
 
 If we start storing and modeling Issues and their lifecycles, can we start answering nuanced questions about our workflows and productivity?
 
