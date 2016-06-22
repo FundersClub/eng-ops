@@ -33,3 +33,30 @@ Team questions:
 * Could the team "do more"? Do we have the capacity to resolve more issues/week?
 * How much does our productivity vary each week?
 * Can we automate standups? e.g. Slack us each a message beforehand with our recent updates, etc
+
+
+#### Things to model
+
+* Issue
+* Pipeline
+* Label
+* User
+* Milestone
+* Estimate ?
+* PRs
+* Comments on PRs/Issues
+
+These relationships are fluid – an Issue might enter/leave a Pipeline multiple times, and the timing around that is important. Its Estimates and Assignees may change, and we need to know that.
+
+Modeling option: Issues -> PipelineStates (state: started: ended:?)
+
+
+#### Potential roadmap
+
+V0: Build nuanced definition of Issue that only stores current snapshot into a Postgres DB, visualize in RJMetrics
+V0.1: Build Slack integration for pre-standups (What closed in last 24, what's in each Pipeline)
+V0.2: Model PRs/Comments
+V0.3: Improve Slack integration to include Comments and PRs.
+V1: Build and track nuanced PipelineStates over time
+V1.1: Assess tracking nuanced Label/User/Milestone/Estimate/etc changes over time
+V2: Support for individual engineer queries
