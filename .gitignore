@@ -1,0 +1,10 @@
+*.py[oc]
+*.sw[nop]
+.env
+env
+*.sublime-workspace
+*.log
+*.DS_Store
+
+staticfiles/
+~

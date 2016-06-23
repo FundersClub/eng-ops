@@ -1,0 +1,137 @@
+#!/usr/bin/env python
+# Inspired by https://github.com/badzil/miscellaneous/blob/master/pre-commit
+import os
+import re
+import sys
+
+try:
+    from termcolor import colored
+except ImportError:
+    colored = lambda string, color=None: string
+
+
+class CommitChecker(object):
+
+    def __init__(self):
+        self.filename = None
+        self.mimetype = None
+        self.content = None
+        self.lines = []
+        self.errors = []
+
+    @property
+    def success(self):
+        return not self.errors
+
+    def _record_error(self, message):
+        self.errors.append((self.filename, message))
+
+    def _warn(self, message):
+        warning_message = '  WARNING: {}'.format(message)
+        print colored(warning_message, 'yellow')
+
+    def get_errors(self):
+        return sorted(self.errors)
+
+    # MAIN RUN METHOD -----------------------------------------------------
+
+    def run(self):
+        filenames = os.popen('git diff --cached --name-only --diff-filter=ACMR')
+        for filename in filenames:
+            self.filename = filename.strip()
+            self.mimetype = os.popen('file --brief {}'.format(filename)).read().strip().lower()
+            if 'symbolic' in self.mimetype:
+                continue
+
+            if os.path.isdir(self.filename):
+                continue
+
+            self.content = file(self.filename).read()
+            self.lines = self.content.split('\n')
+
+            if 'third_party/' in self.filename:
+                print 'Ignoring {}'.format(self.filename)
+                continue
+
+            # diff output
+            self.diff_full = os.popen(
+                'git diff --cached {}'.format(filename)).readlines()
+            self.diff_additions = [
+                l for l in self.diff_full if l.startswith('+')]
+            self.diff_deletions = [
+                l for l in self.diff_full if l.startswith('-')]
+
+            print 'Checking ', self.filename
+            try:
+                self._check_junk_file()
+                self._check_pyflakes()
+                self._check_whitespace()
+                self._check_imports()
+                self._check_debug()
+                self._check_conflict_marks()
+
+            except AssertionError as e:
+                self._record_error(e.message)
+
+    def _check_junk_file(self):
+        JUNK_FILE_RE = re.compile(r'\. py[oc] | ~ ')
+        assert not JUNK_FILE_RE.search(self.filename), 'Filename not allowed'
+
+    def _check_pyflakes(self):
+        if 'python script' in self.mimetype:
+            output = os.popen('pyflakes {}'.format(self.filename)).read()
+            output = re.sub(r'^[^:]+:', '', output)
+            output = '\n'.join(line for line in output.split('\n'))
+            assert not output, 'Pyflakes failed:\n{}'.format(output)
+
+    def _check_whitespace(self):
+        errors = []
+
+        if 'text' in self.mimetype:
+            for num, line in enumerate(self.lines):
+                if line.endswith(' '):
+                    errors.append((num + 1, 'Trailing space'))
+                elif line.endswith('\r'):
+                    errors.append((num + 1, 'DOS newline'))
+                if '\t' in line:
+                    errors.append((num + 1, 'Tab character not allowed'))
+
+        assert not errors, 'Whitespace problems:\n{}'.format(
+            '\n'.join(re.sub('^', '\t', ('{:5}: {}'.format(*pair))) for pair in errors)
+        )
+
+    def _check_imports(self):
+        if 'text' in self.mimetype:
+            for (num, line) in enumerate(self.lines):
+                if line.strip().startswith(('import ')):
+                    assert ',' not in line, \
+                        'Only 1 import per line -- {:.0f}: {}'.format(num + 1, line)
+
+    def _check_debug(self):
+        if 'text' in self.mimetype:
+            for (num, line) in enumerate(self.lines):
+                assert not re.search(r'i?pdb?\.set_trace\(', line), \
+                    'Should remove iPython statement, Line: {:.0f}'.format(num + 1)
+
+    def _check_conflict_marks(self):
+        if 'text' in self.mimetype:
+            for (num, line) in enumerate(self.lines):
+                assert not re.search(r'^(<|>|=){7}', line), \
+                        'There is a conflict mark in the source. Line: {:.0f}'.format(num + 1)
+
+
+if __name__ == '__main__':
+    checker = CommitChecker()
+    checker.run()
+    if checker.success:
+        print colored('All pre-commit checks OK', 'green')
+    else:
+        print
+        print colored('!' * 80, 'red')
+        print colored('PRE_COMMIT CHECK FAILED', 'red')
+        print colored('!' * 80, 'red')
+        print
+        for filename, message in checker.get_errors():
+            print '{}: {}'.format(filename, message)
+        print
+        sys.exit(1)

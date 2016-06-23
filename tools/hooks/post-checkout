@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# The hook is given three parameters: the ref of the previous HEAD, the ref of
+# the new HEAD (which may or may not have changed), and a flag indicating whether
+# the checkout was a branch checkout (changing branches, flag=1)
+
+echo 'Deleting any .pyc files and empty directories'
+cd ./$(git rev-parse --show-cdup)
+find . -name "*.pyc" -delete
+find . -type d -empty -delete
