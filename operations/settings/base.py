@@ -10,7 +10,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = True
 ROOT_DIR = os.path.dirname(BASE_DIR)
 ROOT_URLCONF = 'operations.urls'
-SECRET_KEY = os.getenv('ENG_OPS_DJANGO_SECRET_KEY')
 SITE_ID = 1
 WSGI_APPLICATION = 'operations.wsgi.application'
 
@@ -20,6 +19,14 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
+
+
+# ######### CONFIG VARIABLES
+CURRENT_ENVIRONMENT_IS_PRODUCTION = os.getenv('CURRENT_ENVIRONMENT_IS_PRODUCTION')
+ENG_OPS_GITHUB_KEY = os.getenv('ENG_OPS_GITHUB_KEY')
+ENG_OPS_ZENHUB_KEY = os.getenv('ENG_OPS_ZENHUB_KEY')
+GITHUB_ORGANIZATION = os.getenv('GITHUB_ORGANIZATION')
+SECRET_KEY = os.getenv('ENG_OPS_DJANGO_SECRET_KEY')
 
 
 # ######### HOST VARIABLES
