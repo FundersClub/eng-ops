@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 
 import requests
@@ -14,7 +16,7 @@ class BaseApi(object):
         kwargs['headers'] = cls.HEADERS
 
         response = requests.request(method, url, **kwargs)
-        return response
+        return json.loads(response.content)
 
 
 class GithubApi(BaseApi):
