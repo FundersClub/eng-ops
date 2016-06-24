@@ -15,4 +15,4 @@ ALLOWED_HOSTS += [
 
 
 # ######### DEBUG CONFIGURATION
-DEBUG = False
+DEBUG = True
