@@ -8,6 +8,11 @@ CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 
+# ######### CONFIG VARIABLES
+ADMIN_URL = 'admin'
+SITE_URL = 'site'
+
+
 # ######### DATABASE CONFIGURATION
 DATABASES = {
     'default': {
@@ -23,7 +28,3 @@ DATABASES = {
 ALLOWED_HOSTS += [
     'localhost',
 ]
-
-
-# ######### URL CONFIGURATION
-BASE_URL = 'http://localhost:4000'

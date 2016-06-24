@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import patterns
@@ -7,13 +9,16 @@ from django.views.generic.base import RedirectView
 
 
 admin.site.login = RedirectView.as_view(
-    url='{}?next={}'.format(settings.LOGIN_URL, '/admin/'),
+    url='{}?next={}'.format(settings.LOGIN_URL, '/{}/'.format(settings.ADMIN_URL)),
     permanent=False
 )
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^accounts/', include('allauth.urls')),
+    url(r'^{}/'.format(settings.ADMIN_URL), include(admin.site.urls)),
+    url(r'^{}/'.format(settings.SITE_URL), include('allauth.urls')),
+    url(r'^{}/accounts/login/$'.format(settings.SITE_URL), 'allauth.account.views.login', name='account_login'),
+    url(r'^{}/accounts/signup/$'.format(settings.SITE_URL), 'allauth.account.views.login', name='account_signup'),
+    url(r'^{}/accounts/logout/$'.format(settings.SITE_URL), 'allauth.account.views.logout', name='account_logout'),
     url(r'^', include('allauth.socialaccount.providers.google.urls')),
 ]
 

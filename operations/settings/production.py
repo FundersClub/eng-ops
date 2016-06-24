@@ -9,6 +9,10 @@ from .base import *
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config()
 
+ALLOWED_HOSTS += [
+    host for host in os.getenv('ENG_OPS_ALLOWED_HOSTS').split(',')
+]
+
 
 # ######### DEBUG CONFIGURATION
 DEBUG = False

@@ -22,11 +22,13 @@ AUTHENTICATION_BACKENDS = (
 
 
 # ######### CONFIG VARIABLES
+ADMIN_URL = os.getenv('ENG_OPS_ADMIN_URL', 'admin')
 CURRENT_ENVIRONMENT_IS_PRODUCTION = os.getenv('CURRENT_ENVIRONMENT_IS_PRODUCTION')
 ENG_OPS_GITHUB_KEY = os.getenv('ENG_OPS_GITHUB_KEY')
 ENG_OPS_ZENHUB_KEY = os.getenv('ENG_OPS_ZENHUB_KEY')
 GITHUB_ORGANIZATION = os.getenv('GITHUB_ORGANIZATION')
 SECRET_KEY = os.getenv('ENG_OPS_DJANGO_SECRET_KEY')
+SITE_URL = os.getenv('ENG_OPS_SITE_URL', 'site')
 
 
 # ######### HOST VARIABLES
@@ -115,6 +117,12 @@ LOGGING = {
     },
     'version': 1,
 }
+
+
+# ######### LOGIN CONFIGURATION
+LOGIN_URL = '/{}/accounts/login/'.format(SITE_URL)
+LOGOUT_URL = '/{}/accounts/logout/'.format(SITE_URL)
+LOGIN_REDIRECT_URL = '/'
 
 
 # ######### MIDDLEWARE CONFIGURATION

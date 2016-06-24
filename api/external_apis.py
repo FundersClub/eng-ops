@@ -39,6 +39,14 @@ class GithubApi(BaseApi):
         )
         return cls._request(url)
 
+    @classmethod
+    def get_repo_labels(cls, repo_name):
+        url = 'repos/{}/{}/labels'.format(
+            settings.GITHUB_ORGANIZATION,
+            repo_name,
+        )
+        return cls._request(url)
+
 
 class ZenhubApi(BaseApi):
 

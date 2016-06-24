@@ -3,10 +3,7 @@ from labels.models import Label
 from repositories.models import Repository
 from user_management.models import GithubUser
 
-from api.external_apis import (
-    GithubApi,
-    ZenhubApi,
-)
+from api.external_apis import GithubApi
 
 
 def sync_all():
@@ -32,7 +29,7 @@ def sync_all_labels():
             label, _ = Label.objects.get_or_create(
                 name=label_data['name'],
             )
-            label.repository.add(repo)
+            label.repositories.add(repo)
             label.save()
 
 
