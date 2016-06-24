@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# The post_compile hook is run by heroku-buildpack-python:
+# https://github.com/heroku/heroku-buildpack-python/blob/master/bin/steps/hooks/post_compile
+
+# Run migrations.
+./manage.py migrate
