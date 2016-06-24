@@ -39,34 +39,40 @@ def sync_all_issues():
 
 
 def sync_issues(repo):
-    issues_data = GithubApi.get_repo_issues(repo)
-    for issue_data in issues_data:
-        assignee = None
-        if issue_data['assignee']:
-            assignee, _ = GithubUser.objects.get_or_create(
-                id=issue_data['assignee']['id'],
-                login=issue_data['assignee']['login'],
+    issues_page = 1
+    issues_data = GithubApi.get_repo_issues(repo, issues_page)
+    while len(issues_data) > 0:
+        for issue_data in issues_data:
+            if issue_data.get('pull_request', None) is not None:
+                continue
+            assignee = None
+            if issue_data['assignee']:
+                assignee, _ = GithubUser.objects.get_or_create(
+                    id=issue_data['assignee']['id'],
+                    login=issue_data['assignee']['login'],
+                )
+            creater, _ = GithubUser.objects.get_or_create(
+                id=issue_data['user']['id'],
+                login=issue_data['user']['login'],
             )
-        creater, _ = GithubUser.objects.get_or_create(
-            id=issue_data['user']['id'],
-            login=issue_data['user']['login'],
-        )
-        issue, _ = Issue.objects.get_or_create(
-            assignee=assignee,
-            body=issue_data['body'],
-            closed_at=issue_data.get('closed_at', None),
-            created_at=issue_data['created_at'],
-            creater=creater,
-            id=issue_data['id'],
-            number=issue_data['number'],
-            repository=repo,
-            title=issue_data['title'],
-        )
-        issue.labels.clear()
-        issue.labels.add(
-            *Label.objects.filter(
-                name__in=[label['name'] for label in issue_data['labels']],
-                repositories__in=[repo],
+            issue, _ = Issue.objects.get_or_create(
+                assignee=assignee,
+                body=issue_data['body'],
+                closed_at=issue_data.get('closed_at', None),
+                created_at=issue_data['created_at'],
+                creater=creater,
+                id=issue_data['id'],
+                number=issue_data['number'],
+                repository=repo,
+                title=issue_data['title'],
             )
-        )
-        issue.save()
+            issue.labels.clear()
+            issue.labels.add(
+                *Label.objects.filter(
+                    name__in=[label['name'] for label in issue_data['labels']],
+                    repositories__in=[repo],
+                )
+            )
+            issue.save()
+        issues_page += 1
+        issues_data = GithubApi.get_repo_issues(repo, issues_page)

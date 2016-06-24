@@ -32,10 +32,11 @@ class GithubApi(BaseApi):
         return cls._request(url)
 
     @classmethod
-    def get_repo_issues(cls, repo_name):
-        url = 'repos/{}/{}/issues'.format(
+    def get_repo_issues(cls, repo_name, page=1):
+        url = 'repos/{}/{}/issues?page={}'.format(
             settings.GITHUB_ORGANIZATION,
             repo_name,
+            page,
         )
         return cls._request(url)
 

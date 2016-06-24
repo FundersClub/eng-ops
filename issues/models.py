@@ -16,7 +16,7 @@ class Issue(models.Model):
     labels = models.ManyToManyField(Label, related_name='issues')
     number = models.PositiveSmallIntegerField()
     repository = models.ForeignKey(Repository, related_name='issues')
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=256)
 
     class Meta:
         ordering = ('repository', 'number', )
