@@ -78,14 +78,16 @@ def sync_issues(repo):
                 login=issue_data['user']['login'],
             )
             issue, _ = Issue.objects.get_or_create(
-                assignee=assignee,
-                body=issue_data['body'],
-                closed_at=issue_data.get('closed_at', None),
                 created_at=issue_data['created_at'],
                 creater=creater,
                 id=issue_data['id'],
                 number=issue_data['number'],
                 repository=repo,
+            )
+            Issue.objects.filter(id=issue.id).update(
+                assignee=assignee,
+                body=issue_data['body'],
+                closed_at=issue_data.get('closed_at', None),
                 title=issue_data['title'],
             )
             issue.labels.clear()
