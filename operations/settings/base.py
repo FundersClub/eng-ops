@@ -60,6 +60,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'operations',
+    'api',
     'issues',
     'labels',
     'repositories',
