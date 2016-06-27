@@ -1,6 +1,7 @@
 from django.db import models
 
 from labels.models import Label
+from pipelines.models import Pipeline
 from repositories.models import Repository
 from user_management.models import GithubUser
 
@@ -12,9 +13,11 @@ class Issue(models.Model):
     closed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField()
     creater = models.ForeignKey(GithubUser, related_name='created_issues')
+    estimate = models.PositiveSmallIntegerField(default=0)
     id = models.PositiveIntegerField(primary_key=True)
     labels = models.ManyToManyField(Label, related_name='issues')
     number = models.PositiveSmallIntegerField()
+    pipeline = models.ForeignKey(Pipeline, null=True, related_name='issues')
     repository = models.ForeignKey(Repository, related_name='issues')
     title = models.CharField(max_length=256)
 
