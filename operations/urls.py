@@ -16,6 +16,7 @@ admin.site.login = RedirectView.as_view(
 urlpatterns = [
     url(r'^{}/'.format(settings.ADMIN_URL), include(admin.site.urls)),
     url(r'^{}/'.format(settings.SITE_URL), include('allauth.urls')),
+    url(r'^{}/callback/$'.format(settings.SITE_URL), 'api.views.github_callback'),
     url(r'^{}/accounts/login/$'.format(settings.SITE_URL), 'allauth.account.views.login', name='account_login'),
     url(r'^{}/accounts/signup/$'.format(settings.SITE_URL), 'allauth.account.views.login', name='account_signup'),
     url(r'^{}/accounts/logout/$'.format(settings.SITE_URL), 'allauth.account.views.logout', name='account_logout'),
