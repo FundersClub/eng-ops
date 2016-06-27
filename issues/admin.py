@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from issues.filters import RepositoryFilter
 from issues.models import Issue
 
 
@@ -16,6 +17,9 @@ class IssueAdmin(admin.ModelAdmin):
         'closed_at',
         'labels',
         'body',
+    ]
+    list_filter = [
+        RepositoryFilter,
     ]
     list_display = [
         'number',

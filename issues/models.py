@@ -19,4 +19,7 @@ class Issue(models.Model):
     title = models.CharField(max_length=256)
 
     class Meta:
-        ordering = ('repository', 'number', )
+        ordering = (
+            'repository',
+            '-number',
+        )
