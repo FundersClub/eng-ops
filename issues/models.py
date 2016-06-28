@@ -39,3 +39,9 @@ class IssueComment(models.Model):
     created_at = models.DateTimeField()
     issue = models.ForeignKey(Issue)
     user = models.ForeignKey(GithubUser)
+
+    def __unicode__(self):
+        return '{} - {}'.format(
+            self.user,
+            self.issue,
+        )
