@@ -45,7 +45,7 @@ def issue_handler(data):
     return issue
 
 
-@transaction.atmoic
+@transaction.atomic
 def repository_handler(data):
     repository_data = data['repository']
 
