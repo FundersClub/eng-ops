@@ -26,3 +26,9 @@ class Issue(models.Model):
             'repository',
             '-number',
         )
+
+    def __unicode__(self):
+        return '{}: {}'.format(
+            self.repository,
+            self.title,
+        )

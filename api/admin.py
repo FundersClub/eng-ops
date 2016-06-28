@@ -22,6 +22,12 @@ class GithubRequestAdmin(admin.ModelAdmin):
         'method',
     ]
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def issue_link(self, obj):
         return format_html(
             u'<a href={}>{}</a>'.format(
@@ -29,9 +35,3 @@ class GithubRequestAdmin(admin.ModelAdmin):
                 obj.issue,
             )
         )
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
