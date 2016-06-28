@@ -15,6 +15,7 @@ class GithubRequestAdmin(admin.ModelAdmin):
     list_display = [
         'time',
         'event',
+        'issue',
         'handled',
         'method',
     ]
