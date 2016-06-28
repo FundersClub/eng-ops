@@ -29,6 +29,9 @@ class GithubRequestAdmin(admin.ModelAdmin):
         return False
 
     def issue_link(self, obj):
+        if not obj.issue_id:
+            return '-'
+
         return format_html(
             u'<a href={}>{}</a>'.format(
                 reverse('admin:issues_issue_change', args=(obj.issue_id,)),
