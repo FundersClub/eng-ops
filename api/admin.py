@@ -17,7 +17,6 @@ class GithubRequestAdmin(admin.ModelAdmin):
         'event',
         'handled',
         'method',
-        'body',
     ]
 
     def has_add_permission(self, request, obj=None):
