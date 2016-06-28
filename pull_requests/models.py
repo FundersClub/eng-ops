@@ -21,3 +21,4 @@ class PullRequest(models.Model):
             self.repository,
             self.title,
         )
+
