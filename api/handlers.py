@@ -6,7 +6,10 @@ from issues.models import (
 )
 from labels.models import Label
 from pipelines.models import Pipeline
-from pull_requests.models import PullRequest
+from pull_requests.models import (
+    PullRequest,
+    PullRequestComment,
+)
 from repositories.models import Repository
 from user_management.models import GithubUser
 
@@ -66,6 +69,7 @@ def issue_comment_handler(data):
 
     comment, _ = IssueComment.objects.update_or_create(
         created_at=comment_data['created_at'],
+        id=comment_data['id'],
         issue=issue,
         user=user,
         defaults={
@@ -111,6 +115,28 @@ def pull_request_handler(data):
     pull_request.assignees.clear()
     pull_request.assignees.add(*assignees)
     return pull_request
+
+
+@transaction.atomic
+def pull_request_review_comment_handler(data):
+    comment_data = data['comment']
+    pull_request = pull_request_handler(data)
+    user, _ = GithubUser.objects.get_or_create(
+        id=comment_data['user']['id'],
+        login=comment_data['user']['login'],
+    )
+
+    comment, _ = PullRequestComment.objects.update_or_create(
+        created_at=comment_data['created_at'],
+        id=comment_data['id'],
+        pull_request=pull_request,
+        user=user,
+        defaults={
+            'body': comment_data['body'],
+        }
+    )
+
+    return comment
 
 
 @transaction.atomic

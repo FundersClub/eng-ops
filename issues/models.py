@@ -37,6 +37,7 @@ class Issue(models.Model):
 class IssueComment(models.Model):
     body = models.TextField(default='')
     created_at = models.DateTimeField()
+    id = models.PositiveIntegerField(primary_key=True)
     issue = models.ForeignKey(Issue)
     user = models.ForeignKey(GithubUser)
 

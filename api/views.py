@@ -8,6 +8,7 @@ from api.handlers import (
     issue_handler,
     issue_comment_handler,
     pull_request_handler,
+    pull_request_review_comment_handler,
     repository_handler,
 )
 from api.models import GithubRequest
@@ -16,6 +17,7 @@ HANDLER_DICT = {
     'issues': issue_handler,
     'issue_comment': issue_comment_handler,
     'pull_request': pull_request_handler,
+    'pull_request_review_comment': pull_request_review_comment_handler,
     'repository': repository_handler,
 }
 

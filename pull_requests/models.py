@@ -17,8 +17,21 @@ class PullRequest(models.Model):
     user = models.ForeignKey(GithubUser, related_name='pull_requests')
 
     def __unicode__(self):
-        return '{}: {}'.format(
+        return '{} PR: {}'.format(
             self.repository,
             self.title,
         )
 
+
+class PullRequestComment(models.Model):
+    body = models.TextField(default='')
+    created_at = models.DateTimeField()
+    id = models.PositiveIntegerField(primary_key=True)
+    user = models.ForeignKey(GithubUser)
+    pull_request = models.ForeignKey(PullRequest, related_name='comments')
+
+    def __unicode__(self):
+        return '{} - {}'.format(
+            self.user,
+            self.pull_request,
+        )
