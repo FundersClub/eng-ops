@@ -35,7 +35,7 @@ def github_callback(request):
             obj = handler(content)
             if obj:
                 github_request.handled = True
-                setattr(github_request, obj.__cls__.__name__.lower(), obj)
+                setattr(github_request, obj.__class__.__name__.lower(), obj)
                 github_request.save()
 
     return HttpResponse()
