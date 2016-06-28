@@ -14,7 +14,7 @@ class GithubRequest(models.Model):
     event = models.CharField(max_length=100)
     handled = models.BooleanField(default=False)
     issue = models.ForeignKey(Issue, null=True, blank=True)
-    issue_comment = models.ForeignKey(IssueComment, null=True, blank=True)
+    issuecomment = models.ForeignKey(IssueComment, null=True, blank=True)
     method = models.CharField(max_length=20)
     obj_field = models.CharField(max_length=50, null=True, blank=True)
     pullrequest = models.ForeignKey(PullRequest, null=True, blank=True)
@@ -24,7 +24,7 @@ class GithubRequest(models.Model):
     def save(self, *args, **kwargs):
         for attr in [
                 'issue',
-                'issue_comment',
+                'issuecomment',
                 'pullrequest',
                 'repository',
         ]:

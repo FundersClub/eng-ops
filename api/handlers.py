@@ -58,7 +58,7 @@ def issue_handler(data):
 @transaction.atomic
 def issue_comment_handler(data):
     comment_data = data['comment']
-    issue = Issue.objects.get(id=data['issue']['id'])
+    issue = issue_handler(data)
     user, _ = GithubUser.objects.get_or_create(
         id=comment_data['user']['id'],
         login=comment_data['user']['login'],
@@ -68,7 +68,7 @@ def issue_comment_handler(data):
         created_at=comment_data['created_at'],
         issue=issue,
         user=user,
-        default={
+        defaults={
             'body': comment_data['body'],
         }
     )
