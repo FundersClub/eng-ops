@@ -4,6 +4,7 @@ from issues.models import (
     Issue,
     IssueComment,
 )
+from pull_requests.models import PullRequest
 from repositories.models import Repository
 
 
@@ -15,6 +16,7 @@ class GithubRequest(models.Model):
     issue_comment = models.ForeignKey(IssueComment, null=True, blank=True)
     method = models.CharField(max_length=20)
     obj_field = models.CharField(max_length=50, null=True, blank=True)
+    pullrequest = models.ForeignKey(PullRequest, null=True, blank=True)
     repository = models.ForeignKey(Repository, null=True, blank=True)
     time = models.DateTimeField()
 
@@ -22,6 +24,7 @@ class GithubRequest(models.Model):
         for attr in [
                 'issue',
                 'issue_comment',
+                'pullrequest',
                 'repository',
         ]:
             if getattr(self, attr, None) is not None:

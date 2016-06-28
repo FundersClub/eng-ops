@@ -45,7 +45,7 @@ class GithubRequestAdmin(admin.ModelAdmin):
                 reverse('admin:{}_{}_change'.format(
                     ref_obj._meta.app_label,
                     ref_obj._meta.model_name,
-                ), args=(obj.issue_id,)),
+                ), args=(ref_obj.id,)),
                 getattr(obj, obj.obj_field),
             )
         )
