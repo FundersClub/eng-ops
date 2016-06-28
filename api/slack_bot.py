@@ -17,10 +17,7 @@ def send_standup_messages():
     end_time = datetime.now()
     start_time = end_time - timedelta(days=1, hours=1)
 
-    for user in GithubUser.objects.all():
-        if not user.slack_username:
-            continue
-
+    for user in GithubUser.objects.filter(slack_username__isnull=False):
         issues = Issue.objects.filter(
             closed_at__range=(start_time, end_time),
             assignee=user,
@@ -28,7 +25,7 @@ def send_standup_messages():
         requests.get(SLACK_POST_MESSAGE_BASE_URL.format(
             settings.SLACK_TOKEN,
             '@{}'.format(user.slack_username),
-            'You have closed the following issues: \n{}'.format(
+            '*Closed issues:* \n>>>{}'.format(
                 '\n'.join([str(issue) for issue in issues])
             ),
             'Standup Bot',
