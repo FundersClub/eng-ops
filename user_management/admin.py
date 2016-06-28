@@ -8,10 +8,12 @@ class GithubUserAdmin(admin.ModelAdmin):
     fields = [
         'id',
         'login',
+        'slack_username',
     ]
     list_display = [
         'id',
         'login',
+        'slack_username',
     ]
     readonly_fields = [
         'id',
