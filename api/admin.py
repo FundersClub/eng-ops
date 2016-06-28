@@ -13,6 +13,7 @@ class GithubRequestAdmin(admin.ModelAdmin):
     fields = [
         'time',
         'event',
+        'action',
         'handled',
         'method',
         'body',
@@ -20,6 +21,7 @@ class GithubRequestAdmin(admin.ModelAdmin):
     list_display = [
         'time',
         'event',
+        'action',
         'object_link',
         'handled',
         'method',
