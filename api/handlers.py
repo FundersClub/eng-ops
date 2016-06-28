@@ -2,6 +2,7 @@ from django.db import transaction
 
 from issues.models import Issue
 from labels.models import Label
+from repositories.models import Repository
 from user_management.models import GithubUser
 
 
@@ -42,3 +43,18 @@ def issue_handler(data):
     issue.save()
 
     return issue
+
+
+@transaction.atmoic
+def repository_handler(data):
+    repository_data = data['repository']
+
+    repository, _ = Repository.objects.get_or_create(
+        id=repository_data['id'],
+        name=repository_data['name'],
+    )
+
+    repository.private = repository_data['private']
+    repository.save()
+
+    return repository

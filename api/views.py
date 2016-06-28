@@ -6,11 +6,13 @@ from django.views.decorators.csrf import csrf_exempt
 
 from api.handlers import (
     issue_handler,
+    repository_handler,
 )
 from api.models import GithubRequest
 
 HANDLER_DICT = {
     'issues': issue_handler,
+    'repository': repository_handler,
 }
 
 
