@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.core.urlresolvers import reverse
+from django.utils.html import format_html
 
 from api.models import GithubRequest
 
@@ -15,10 +17,18 @@ class GithubRequestAdmin(admin.ModelAdmin):
     list_display = [
         'time',
         'event',
-        'issue',
+        'issue_link',
         'handled',
         'method',
     ]
+
+    def issue_link(self, obj):
+        return format_html(
+            u'<a href={}>{}</a>'.format(
+                reverse('admin:issues_issue_change', args=(obj.issue_id,)),
+                obj.issue,
+            )
+        )
 
     def has_add_permission(self, request, obj=None):
         return False
