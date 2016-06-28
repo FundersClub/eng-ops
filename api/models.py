@@ -9,6 +9,7 @@ from repositories.models import Repository
 
 
 class GithubRequest(models.Model):
+    action = models.CharField(max_length=50, default='')
     body = models.TextField(null=True, blank=True)
     event = models.CharField(max_length=100)
     handled = models.BooleanField(default=False)

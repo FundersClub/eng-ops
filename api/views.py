@@ -33,6 +33,7 @@ def github_callback(request):
 
         try:
             content = json.loads(request.body)
+            github_request.action = content['action']
         except ValueError as e:
             print e
         else:
