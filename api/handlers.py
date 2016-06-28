@@ -1,7 +1,11 @@
 from django.db import transaction
 
-from issues.models import Issue
+from issues.models import (
+    Issue,
+    IssueComment,
+)
 from labels.models import Label
+from pipelines.models import Pipeline
 from repositories.models import Repository
 from user_management.models import GithubUser
 
@@ -40,9 +44,31 @@ def issue_handler(data):
             repositories__id=data['repository']['id'],
         )
     )
+
+    if issue.closed_at is not None:
+        issue.pipeline = Pipeline.objects.get(name='Closed')
     issue.save()
 
     return issue
+
+
+def issue_comment_handler(data):
+    comment_data = data['comment']
+    issue = Issue.objects.get(id=data['issue']['id'])
+    user, _ = GithubUser.objects.get_or_create(
+        id=comment_data['user']['id'],
+        login=comment_data['user']['login'],
+    )
+
+    comment, _ = IssueComment.objects.get_or_create(
+        created_at=comment_data['created_at'],
+        issue=issue,
+        user=user,
+    )
+    comment.body = comment_data['body']
+    comment.save()
+
+    return comment
 
 
 @transaction.atomic

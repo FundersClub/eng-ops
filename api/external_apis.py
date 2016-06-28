@@ -19,36 +19,6 @@ class BaseApi(object):
         return json.loads(response.content)
 
 
-class GithubApi(BaseApi):
-
-    BASE_URL = 'https://api.github.com/{}'
-    HEADERS = {
-        'Authorization': settings.ENG_OPS_GITHUB_KEY,
-    }
-
-    @classmethod
-    def get_all_repos(cls):
-        url = 'orgs/{}/repos'.format(settings.GITHUB_ORGANIZATION)
-        return cls._request(url)
-
-    @classmethod
-    def get_repo_issues(cls, repo_name, page=1):
-        url = 'repos/{}/{}/issues?page={}'.format(
-            settings.GITHUB_ORGANIZATION,
-            repo_name,
-            page,
-        )
-        return cls._request(url)
-
-    @classmethod
-    def get_repo_labels(cls, repo_name):
-        url = 'repos/{}/{}/labels'.format(
-            settings.GITHUB_ORGANIZATION,
-            repo_name,
-        )
-        return cls._request(url)
-
-
 class ZenhubApi(BaseApi):
 
     BASE_URL = 'https://api.zenhub.io/p1/{}'
