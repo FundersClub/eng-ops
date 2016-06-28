@@ -11,10 +11,10 @@ from api.external_apis import (
 
 
 def sync_all():
-    sync_repos()
-    sync_all_labels()
-    sync_all_issues()
-    sync_all_boards()
+    #sync_repos()
+    #sync_all_labels()
+    #sync_all_issues()
+    #sync_all_boards()
 
 
 def sync_all_issues():
