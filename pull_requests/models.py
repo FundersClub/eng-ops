@@ -17,7 +17,7 @@ class PullRequest(models.Model):
     user = models.ForeignKey(GithubUser, related_name='pull_requests')
 
     def __unicode__(self):
-        return '{} PR: {}'.format(
+        return 'PR {} : {}'.format(
             self.repository,
             self.title,
         )

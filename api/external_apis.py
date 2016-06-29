@@ -5,7 +5,12 @@ from django.conf import settings
 import requests
 
 
-class BaseApi(object):
+class ZenhubApi(object):
+
+    BASE_URL = 'https://api.zenhub.io/p1/{}'
+    HEADERS = {
+        'X-Authentication-Token': settings.ENG_OPS_ZENHUB_KEY,
+    }
 
     @classmethod
     def _request(cls, url, method='get', **kwargs):
@@ -17,14 +22,6 @@ class BaseApi(object):
 
         response = requests.request(method, url, **kwargs)
         return json.loads(response.content)
-
-
-class ZenhubApi(BaseApi):
-
-    BASE_URL = 'https://api.zenhub.io/p1/{}'
-    HEADERS = {
-        'X-Authentication-Token': settings.ENG_OPS_ZENHUB_KEY,
-    }
 
     @classmethod
     def get_issue(cls, repo_id, issue_id):
