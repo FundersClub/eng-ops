@@ -14,6 +14,13 @@ class PipelineState(models.Model):
     pipeline = models.ForeignKey(Pipeline)
     started_at = models.DateTimeField()
 
+    class Meta:
+        ordering = (
+            'issue__repository',
+            'issue__number',
+            'started_at',
+        )
+
     def __unicode__(self):
         return '{} {}'.format(
             self.pipeline,
