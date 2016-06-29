@@ -12,6 +12,7 @@ from issues.models import (
     Issue,
     IssueComment,
 )
+from pipelines.inlines import PipelineStateInline
 
 
 @admin.register(Issue)
@@ -27,6 +28,9 @@ class IssueAdmin(admin.ModelAdmin):
         'closed_at',
         'labels',
         'body',
+    ]
+    inlines = [
+        PipelineStateInline,
     ]
     list_filter = [
         PipelineFilter,
