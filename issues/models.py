@@ -38,15 +38,6 @@ class Issue(models.Model):
             self.title,
         )
 
-    def save(self, *args, **kwargs):
-        super(Issue, self).save(*args, **kwargs)
-        if not self.pipeline_states.exists():
-            PipelineState.objects.create(
-                issue=self,
-                pipeline=Pipeline.objects.get(name='New Issues'),
-                started_at=datetime.now(),
-            )
-
 
 class IssueComment(models.Model):
     body = models.TextField(default='')
