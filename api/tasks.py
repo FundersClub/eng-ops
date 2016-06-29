@@ -11,12 +11,7 @@ from api.external_apis import ZenhubApi
 
 
 def sync_issues():
-    # issues = Issue.objects.filter(closed_at__isnull=True)
-    issues = Issue.objects.filter(
-        repository__name='eng-ops',
-        number='22',
-    )
-
+    issues = Issue.objects.filter(closed_at__isnull=True)
     for issue in issues:
         sync_issue(issue)
 
@@ -34,17 +29,23 @@ def sync_issue(issue):
                 issue=issue,
                 pipeline=from_pipeline,
             ).order_by('started_at').last()
+            if not pipeline_state:
+                pipeline_state = PipelineState.objects.create(
+                    issue=issue,
+                    pipeline=from_pipeline,
+                    started_at=issue.created_at,
+                )
             pipeline_state.ended_at = event['created_at']
             pipeline_state.save()
 
             to_pipeline, _ = Pipeline.objects.get_or_create(name=event['to_pipeline']['name'])
-            pipeline_state, _ = PipelineState.objects.create(
+            pipeline_state = PipelineState.objects.create(
                 issue=issue,
                 pipeline=to_pipeline,
                 started_at=event['created_at'],
             )
             issue.pipeline = to_pipeline
         if event['type'] == 'estimateIssue':
-            issue.estimate = event['to_estimate']['value']
+            issue.estimate = event.get('to_estimate', {'value': 0})['value']
 
     issue.save()
