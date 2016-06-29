@@ -1,7 +1,12 @@
+from datetime import datetime
+
 from django.db import models
 
 from labels.models import Label
-from pipelines.models import Pipeline
+from pipelines.models import (
+    Pipeline,
+    PipelineState,
+)
 from repositories.models import Repository
 from user_management.models import GithubUser
 
@@ -32,6 +37,15 @@ class Issue(models.Model):
             self.repository,
             self.title,
         )
+
+    def save(self, *args, **kwargs):
+        super(Issue, self).save(*args, **kwargs)
+        if not self.pipeline_states.exists():
+            PipelineState.objects.create(
+                issue=self,
+                pipeline=Pipeline.objects.get(name='New Issues'),
+                started_at=datetime.now(),
+            )
 
 
 class IssueComment(models.Model):

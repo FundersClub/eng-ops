@@ -18,7 +18,7 @@ from pull_requests.models import (
 )
 from user_management.models import GithubUser
 
-SLACK_POST_MESSAGE_BASE_URL = 'https://slack.com/api/chat.postMessage?token={}&channel={}&text={}&username={}'
+SLACK_POST_MESSAGE_BASE_URL = 'https://slack.com/api/chat.postMessage?token={}&channel={}&text={}&as_user=True&username={}'
 
 
 def send_standup_messages():
@@ -34,12 +34,12 @@ def send_standup_messages():
             closed_at__range=(start_time, end_time),
             assignee=user,
         )
-        closed_pull_requests = PullRequest.objects.filter(
+        closed_prs = PullRequest.objects.filter(
             closed_at__range=(start_time, end_time),
             user=user,
         )
-        opened_pull_requests = PullRequest.objects.filter(
-            created_at__range=(start_time, end_time),
+        open_prs = PullRequest.objects.filter(
+            closed_at__isnull=True,
             user=user,
         )
         issue_comments = IssueComment.objects.filter(
@@ -55,11 +55,11 @@ def send_standup_messages():
             '*Closed issues:* \n>{}'.format(
                 '\n>'.join([str(issue) for issue in closed_issues])
             ),
-            '*Opened pull requests:* \n>{}'.format(
-                '\n>'.join([str(pull_request) for pull_request in opened_pull_requests])
+            '*Open pull requests:* \n>{}'.format(
+                '\n>'.join([str(pr) for pr in open_prs])
             ),
             '*Closed pull requests:* \n>{}'.format(
-                '\n>'.join([str(pull_request) for pull_request in closed_pull_requests])
+                '\n>'.join([str(pr) for pr in closed_prs])
             ),
             '*Pipeline Issues*:\n',
             '\n'.join([
