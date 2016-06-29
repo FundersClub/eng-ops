@@ -37,6 +37,7 @@ class PipelineStateAdmin(admin.ModelAdmin):
         'pipeline',
         'ended_at',
     ]
+    readonly_fields = fields
 
     def has_add_permission(self, request, obj=None):
         return False
