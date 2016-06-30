@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import transaction
 
 from issues.models import Issue
@@ -11,9 +13,12 @@ from api.external_apis import ZenhubApi
 
 
 def sync_issues():
+    minute = datetime.now().minute / 10
     issues = Issue.objects.filter(closed_at__isnull=True)
     for issue in issues:
-        sync_issue(issue)
+        #  Hack because Zenhub API
+        if issue.id % 6 == minute:
+            sync_issue(issue)
 
 
 @transaction.atomic
