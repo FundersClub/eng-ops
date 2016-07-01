@@ -22,6 +22,10 @@ class PullRequest(models.Model):
             self.title,
         )
 
+    @property
+    def short_name(self):
+        return unicode(self)[:50]
+
 
 class PullRequestComment(models.Model):
     body = models.TextField(default='')

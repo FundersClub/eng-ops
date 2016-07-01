@@ -5,13 +5,19 @@ from issues.models import (
     IssueComment,
 )
 from labels.models import Label
-from pipelines.models import Pipeline
+from pipelines.models import (
+    Pipeline,
+    PipelineState,
+)
+
 from pull_requests.models import (
     PullRequest,
     PullRequestComment,
 )
 from repositories.models import Repository
 from user_management.models import GithubUser
+
+from api.external_apis import ZenhubApi
 
 
 @transaction.atomic
@@ -52,10 +58,12 @@ def issue_handler(data):
     )
 
     if issue.closed_at is not None:
+        _sync_issue(issue)
         issue.pipeline = Pipeline.objects.get(name='Closed')
         last_pipeline_state = issue.pipeline_states.order_by('started_at').last()
-        last_pipeline_state.ended_at = issue.closed_at
-        last_pipeline_state.save()
+        if last_pipeline_state:
+            last_pipeline_state.ended_at = issue.closed_at
+            last_pipeline_state.save()
     issue.save()
 
     return issue
@@ -155,3 +163,42 @@ def repository_handler(data):
     )
 
     return repository
+
+
+@transaction.atomic
+def _sync_issue(issue):
+    issue_events = ZenhubApi.get_issue_events(issue.repository_id, issue.number)
+    for event in issue_events[::-1]:
+        if event['type'] == 'transferIssue':
+            if PipelineState.objects.filter(
+                    ended_at=event['created_at'],
+                    issue=issue,
+            ).exists():
+                continue
+
+            from_pipeline, _ = Pipeline.objects.get_or_create(name=event['from_pipeline']['name'])
+            pipeline_state = PipelineState.objects.filter(
+                issue=issue,
+                pipeline=from_pipeline,
+            ).order_by('started_at').last()
+            if not pipeline_state:
+                pipeline_state = PipelineState.objects.create(
+                    issue=issue,
+                    pipeline=from_pipeline,
+                    started_at=issue.created_at,
+                )
+            pipeline_state.ended_at = event['created_at']
+            pipeline_state.save()
+
+            to_pipeline, _ = Pipeline.objects.get_or_create(name=event['to_pipeline']['name'])
+            pipeline_state = PipelineState.objects.create(
+                issue=issue,
+                pipeline=to_pipeline,
+                started_at=event['created_at'],
+            )
+            issue.pipeline = to_pipeline
+        if event['type'] == 'estimateIssue':
+            issue.estimate = event.get('to_estimate', {'value': 0})['value']
+
+    issue.save()
+

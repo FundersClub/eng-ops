@@ -4,6 +4,7 @@ from datetime import (
 )
 
 from django.conf import settings
+from django.db.models import Q
 
 import requests
 
@@ -26,50 +27,142 @@ def send_standup_messages():
     start_time = end_time - timedelta(days=1, hours=1)
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
-        open_issues = Issue.objects.filter(
-            closed_at__isnull=True,
+        opened_issues = Issue.objects.filter(
             assignee=user,
+            closed_at__isnull=True,
+            created_at__range=(start_time, end_time),
         )
         closed_issues = Issue.objects.filter(
-            closed_at__range=(start_time, end_time),
-            assignee=user,
+            Q(closed_at__range=(start_time, end_time)) &
+            (
+                Q(assignee=user) |
+                Q(closed_by=user)
+            )
         )
-        closed_prs = PullRequest.objects.filter(
-            closed_at__range=(start_time, end_time),
-            user=user,
-        )
-        open_prs = PullRequest.objects.filter(
+        opened_prs = PullRequest.objects.filter(
             closed_at__isnull=True,
+            created_at__range=(start_time, end_time),
             user=user,
         )
-        issue_comments = IssueComment.objects.filter(
-            created_at__range=(start_time, end_time),
-            user=user,
-        ).count()
-        pull_request_comments = PullRequestComment.objects.filter(
-            created_at__range=(start_time, end_time),
-            user=user,
-        ).count()
+        workon_issues = Issue.objects.filter(
+            assignee=user,
+            closed_at__isnull=True,
+            pipeline__in=Pipeline.objects.filter(name__in=['In Progress', 'In Review']),
+        )
+        ready_to_workon_issues = Issue.objects.filter(
+            assignee=user,
+            closed_at__isnull=True,
+            pipeline__name='Ready to do',
+        )
+        follow_up_issues = Issue.objects.filter(
+            assignee=user,
+            closed_at__isnull=True,
+            pipeline__in=Pipeline.objects.filter(name__in=['Requires Followup', 'New Issues']),
+        )
+        product_backlog_issues = Issue.objects.filter(
+            assignee=user,
+            closed_at__isnull=True,
+            pipeline__name='Product backlog',
+        )
+        eng_backlog_issues = Issue.objects.filter(
+            assignee=user,
+            closed_at__isnull=True,
+            pipeline__name='Eng backlog',
+        )
+
+        GITHUB_API_BASE = 'https://github.com/{}/{}/{}/{}'
 
         text = '\n'.join([
-            '*Closed issues:* \n>{}'.format(
-                '\n>'.join([str(issue) for issue in closed_issues])
-            ),
-            '*Open pull requests:* \n>{}'.format(
-                '\n>'.join([str(pr) for pr in open_prs])
-            ),
-            '*Closed pull requests:* \n>{}'.format(
-                '\n>'.join([str(pr) for pr in closed_prs])
-            ),
-            '*Pipeline Issues*:\n',
-            '\n'.join([
-                '>*{}*: {} issues'.format(pipeline, open_issues.filter(pipeline=pipeline).count()) for pipeline in Pipeline.objects.all() if open_issues.filter(pipeline=pipeline).exists()]),
-            '*{} issue comments*'.format(issue_comments),
-            '*{} pull request comments*'.format(pull_request_comments),
+            '',
+            '*Recent*',
+            '\n'.join(['%E2%80%A2 Opened %23{}: <{}|{}>'.format(
+                issue.number,
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    issue.repository.name,
+                    'issues',
+                    issue.number,
+                ),
+                issue.short_name,
+            ) for issue in opened_issues]),
+            '\n'.join(['%E2%80%A2 Closed %23{}: <{}|{}>'.format(
+                issue.number,
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    issue.repository.name,
+                    'issues',
+                    issue.number,
+                ),
+                issue.short_name,
+            ) for issue in closed_issues]),
+            '\n'.join(['%E2%80%A2 Opened PR: <{}|{}>'.format(
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    pr.repository.name,
+                    'pull',
+                    pr.number,
+                ),
+                pr.short_name,
+            ) for pr in opened_prs]),
+            '',
+            '*Upcoming*',
+            '\n'.join(['%E2%80%A2 Work on %23{}: <{}|{}>'.format(
+                issue.number,
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    issue.repository.name,
+                    'issues',
+                    issue.number,
+                ),
+                issue.short_name,
+            ) for issue in workon_issues]),
+            '\n'.join(['%E2%80%A2 Ready to work on %23{}: <{}|{}>'.format(
+                issue.number,
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    issue.repository.name,
+                    'issues',
+                    issue.number,
+                ),
+                issue.short_name,
+            ) for issue in ready_to_workon_issues]),
+            '\n'.join(['%E2%80%A2 Follow up on %23{}: <{}|{}>'.format(
+                issue.number,
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    issue.repository.name,
+                    'issues',
+                    issue.number,
+                ),
+                issue.short_name,
+            ) for issue in follow_up_issues]),
+            '',
+            '*Backlog*',
+            '\n'.join(['%E2%80%A2 Product backlog %23{}: <{}|{}>'.format(
+                issue.number,
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    issue.repository.name,
+                    'issues',
+                    issue.number,
+                ),
+                issue.short_name,
+            ) for issue in product_backlog_issues]),
+            '\n'.join(['%E2%80%A2 Eng backlog %23{}: <{}|{}>'.format(
+                issue.number,
+                GITHUB_API_BASE.format(
+                    settings.GITHUB_ORGANIZATION,
+                    issue.repository.name,
+                    'issues',
+                    issue.number,
+                ),
+                issue.short_name,
+            ) for issue in eng_backlog_issues]),
         ])
-        requests.get(SLACK_POST_MESSAGE_BASE_URL.format(
+        url = SLACK_POST_MESSAGE_BASE_URL.format(
             settings.SLACK_TOKEN,
             '@{}'.format(user.slack_username),
-            text,
+            unicode(text),
             'Standup Bot',
-        ))
+        )
+        requests.get(url)

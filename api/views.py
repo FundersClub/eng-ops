@@ -31,18 +31,21 @@ def github_callback(request):
         time=datetime.now(),
     )
     if 'HTTP_X_GITHUB_EVENT' in request.META:
-        handler = HANDLER_DICT[request.META['HTTP_X_GITHUB_EVENT']]
-
-        try:
-            content = json.loads(request.body)
-            github_request.action = content['action']
-        except ValueError as e:
-            print e
-        else:
-            obj = handler(content)
-            if obj:
-                github_request.handled = True
-                setattr(github_request, obj.__class__.__name__.lower(), obj)
-                github_request.save()
+        handle_request(github_request)
 
     return HttpResponse()
+
+
+def handle_request(github_request):
+    try:
+        content = json.loads(github_request.body)
+        handler = HANDLER_DICT[github_request.event]
+        github_request.action = content['action']
+    except ValueError as e:
+        print e
+    else:
+        obj = handler(content)
+        if obj:
+            github_request.handled = True
+            setattr(github_request, obj.__class__.__name__.lower(), obj)
+            github_request.save()

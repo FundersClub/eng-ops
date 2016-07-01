@@ -1,21 +1,17 @@
-from datetime import datetime
-
 from django.db import models
 
 from labels.models import Label
-from pipelines.models import (
-    Pipeline,
-    PipelineState,
-)
+from pipelines.models import Pipeline
 from repositories.models import Repository
 from user_management.models import GithubUser
 
 
 class Issue(models.Model):
 
-    assignee = models.ForeignKey(GithubUser, null=True, blank=True, related_name='issues')
+    assignee = models.ForeignKey(GithubUser, null=True, blank=True, related_name='assigned_issues')
     body = models.TextField(null=True, blank=True)
     closed_at = models.DateTimeField(null=True, blank=True)
+    closed_by = models.ForeignKey(GithubUser, null=True, blank=True, related_name='closed_issues')
     created_at = models.DateTimeField()
     creater = models.ForeignKey(GithubUser, related_name='created_issues')
     estimate = models.PositiveSmallIntegerField(default=0)
@@ -37,6 +33,10 @@ class Issue(models.Model):
             self.repository,
             self.title,
         )
+
+    @property
+    def short_name(self):
+        return unicode(self)[:50]
 
 
 class IssueComment(models.Model):
