@@ -57,8 +57,10 @@ def issue_handler(data):
         )
     )
 
+    issue.save()
+    _sync_issue(issue)
+
     if issue.closed_at is not None:
-        _sync_issue(issue)
         issue.pipeline = Pipeline.objects.get(name='Closed')
         last_pipeline_state = issue.pipeline_states.order_by('started_at').last()
         if last_pipeline_state:
