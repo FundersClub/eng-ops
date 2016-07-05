@@ -1,3 +1,5 @@
+import unicodedata
+
 from django.db import transaction
 
 from issues.models import (
@@ -46,7 +48,7 @@ def issue_handler(data):
             'assignee': assignee,
             'body': issue_data['body'],
             'closed_at': issue_data['closed_at'],
-            'title': issue_data['title'],
+            'title': unicodedata.normalize('NFKD', issue_data['title']).encode('ascii', 'ignore'),
         }
     )
 
@@ -120,7 +122,7 @@ def pull_request_handler(data):
             'body': pr_data['body'],
             'closed_at': pr_data['closed_at'],
             'merged_at': pr_data['merged_at'],
-            'title': pr_data['title'],
+            'title': unicodedata.normalize('NFKD', pr_data['title']).encode('ascii', 'ignore'),
             'user': user,
         }
     )
