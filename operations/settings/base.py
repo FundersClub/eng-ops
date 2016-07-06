@@ -3,6 +3,7 @@
 import os
 import socket
 
+import raven
 
 # ######### SETTINGS
 ALLOWED_HOSTS = []
@@ -54,6 +55,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'raven.contrib.django.raven_compat',
     'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
@@ -90,7 +92,7 @@ USE_TZ = True
 
 # ######### LOGGING CONFIGURATION
 LOGGING = {
-    'disable_existing_logging': False,
+    'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
@@ -113,15 +115,31 @@ LOGGING = {
             'formatter': 'verbose',
             'level': 'ERROR',
         },
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['sentry', 'console'],
         'level': 'INFO',
         'propagate': False,
     },
     'version': 1,
 }
 
+# ######### RAVEN CONFIG
+
+RAVEN_CONFIG = {
+    'release': raven.VERSION,
+    'auto_log_stacks': True,
+    'string_max_length': 5000,
+    'timeout': 5,
+    'processors': (
+        'raven.processors.SanitizePasswordsProcessor',
+    ),
+}
 
 # ######### LOGIN CONFIGURATION
 LOGIN_URL = '/{}/accounts/login/'.format(SITE_URL)

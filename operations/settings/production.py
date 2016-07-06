@@ -16,3 +16,8 @@ ALLOWED_HOSTS += [
 
 # ######### DEBUG CONFIGURATION
 DEBUG = False
+
+# ######### RAVEN CONFIGURATION
+RAVEN_CONFIG.update({
+    'dsn': os.getenv('RAVEN_DSN'),
+})
