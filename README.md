@@ -36,6 +36,13 @@ Team questions:
 * Can we automate standups? e.g. Slack us each a message beforehand with our recent updates, etc
 
 
+#### Running
+
+You can run this the same way you'd run any django application, or by using
+`./run.sh` in the project directory. Make sure that you have defined a value for
+the environment variable `ENG_OPS_DJANGO_SECRET_KEY`.
+
+
 #### Things to model
 
 * Issue
