@@ -17,7 +17,15 @@ ALLOWED_HOSTS += [
 # ######### DEBUG CONFIGURATION
 DEBUG = False
 
+
 # ######### RAVEN CONFIGURATION
-RAVEN_CONFIG.update({
+RAVEN_CONFIG = {
+    'auto_log_stacks': True,
     'dsn': os.getenv('RAVEN_DSN'),
-})
+    'processors': (
+        'raven.processors.SanitizePasswordsProcessor',
+    ),
+    'release': raven.VERSION,
+    'string_max_length': 5000,
+    'timeout': 5,
+}

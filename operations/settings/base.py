@@ -129,19 +129,6 @@ LOGGING = {
 }
 
 
-# ######### RAVEN CONFIG
-
-RAVEN_CONFIG = {
-    'release': raven.VERSION,
-    'auto_log_stacks': True,
-    'string_max_length': 5000,
-    'timeout': 5,
-    'processors': (
-        'raven.processors.SanitizePasswordsProcessor',
-    ),
-}
-
-
 # ######### LOGIN CONFIGURATION
 LOGIN_URL = '/{}/accounts/login/'.format(SITE_URL)
 LOGOUT_URL = '/{}/accounts/logout/'.format(SITE_URL)
