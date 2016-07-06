@@ -55,8 +55,8 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'raven.contrib.django.raven_compat',
     'django_extensions',
+    'raven.contrib.django.raven_compat',
     'rest_framework',
     'rest_framework.authtoken',
 ]
@@ -118,7 +118,6 @@ LOGGING = {
         'sentry': {
             'level': 'ERROR',
             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-            'tags': {'custom-tag': 'x'},
         },
     },
     'root': {
@@ -128,6 +127,7 @@ LOGGING = {
     },
     'version': 1,
 }
+
 
 # ######### RAVEN CONFIG
 
@@ -140,6 +140,7 @@ RAVEN_CONFIG = {
         'raven.processors.SanitizePasswordsProcessor',
     ),
 }
+
 
 # ######### LOGIN CONFIGURATION
 LOGIN_URL = '/{}/accounts/login/'.format(SITE_URL)
