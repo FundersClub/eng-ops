@@ -3,7 +3,6 @@
 import os
 import socket
 
-
 # ######### SETTINGS
 ALLOWED_HOSTS = []
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -55,6 +54,7 @@ THIRD_PARTY_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'django_extensions',
+    'raven.contrib.django.raven_compat',
     'rest_framework',
     'rest_framework.authtoken',
 ]
@@ -90,7 +90,7 @@ USE_TZ = True
 
 # ######### LOGGING CONFIGURATION
 LOGGING = {
-    'disable_existing_logging': False,
+    'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',

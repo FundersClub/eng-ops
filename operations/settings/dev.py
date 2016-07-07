@@ -28,3 +28,4 @@ DATABASES = {
 ALLOWED_HOSTS += [
     'localhost',
 ]
+
