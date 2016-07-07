@@ -34,16 +34,12 @@ class Issue(models.Model):
             self.title,
         )
 
-    @property
-    def short_name(self):
-        return unicode(self)[:50]
-
 
 class IssueComment(models.Model):
     body = models.TextField(default='')
     created_at = models.DateTimeField()
     id = models.PositiveIntegerField(primary_key=True)
-    issue = models.ForeignKey(Issue)
+    issue = models.ForeignKey(Issue, related_name='comments')
     user = models.ForeignKey(GithubUser)
 
     def __unicode__(self):
