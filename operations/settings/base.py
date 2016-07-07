@@ -3,8 +3,6 @@
 import os
 import socket
 
-import raven
-
 # ######### SETTINGS
 ALLOWED_HOSTS = []
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -115,13 +113,9 @@ LOGGING = {
             'formatter': 'verbose',
             'level': 'ERROR',
         },
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        },
     },
     'root': {
-        'handlers': ['sentry', 'console'],
+        'handlers': ['console'],
         'level': 'INFO',
         'propagate': False,
     },

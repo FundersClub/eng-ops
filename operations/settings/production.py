@@ -1,6 +1,7 @@
 """Production settings and globals."""
 
 import dj_database_url
+import raven
 
 from .base import *
 
@@ -16,6 +17,14 @@ ALLOWED_HOSTS += [
 
 # ######### DEBUG CONFIGURATION
 DEBUG = False
+
+
+# ######### LOGGING CONFIGURATION
+LOGGING['handlers']['sentry'] = {
+    'level': 'ERROR',
+    'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+}
+LOGGING['root']['handlers'] = ['console', 'sentry']
 
 
 # ######### RAVEN CONFIGURATION
