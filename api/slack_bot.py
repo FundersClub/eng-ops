@@ -1,7 +1,12 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from datetime import (
     datetime,
     timedelta,
 )
+import json
+import logging
 
 from django.conf import settings
 from django.db.models import Q
@@ -19,14 +24,22 @@ from pull_requests.models import (
 )
 from user_management.models import GithubUser
 
-SLACK_POST_MESSAGE_BASE_URL = 'https://slack.com/api/chat.postMessage?token={}&channel={}&text={}&as_user=True&username={}'
+logger = logging.getLogger(__name__)
+SLACK_POST_MESSAGE_BASE_URL = 'https://slack.com/api/chat.postMessage'
+SLACK_POST_DATA = {
+    'as_user': 'True',
+    'token': settings.SLACK_TOKEN,
+    'username': 'Standup%20Bot',
+}
 
 
 def send_standup_messages():
     end_time = datetime.now()
-    start_time = end_time - timedelta(days=1, hours=1)
+    start_time = end_time - timedelta(days=1)
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
+        if user.slack_username != 'tomhu':
+            continue
         opened_issues = Issue.objects.filter(
             assignee=user,
             closed_at__isnull=True,
@@ -98,12 +111,12 @@ def send_standup_messages():
             pipeline__name='Eng Backlog',
         )
 
-        GITHUB_API_BASE = 'https://github.com/{}/{}/{}/{}/'
+        GITHUB_API_BASE = 'https://github.com/{}/{}/{}/{}'
 
-        def get_text(objs, copy, obj_type, format_text='%E2%80%A2 {} {}: <{}|{}>'):
+        def get_text(objs, copy, obj_type, format_text='• {} {}: <{}|{}>'):
             return '\n'.join([format_text.format(
                 copy,
-                '%23{}'.format(obj.number) if obj_type == 'issues' else 'PR',
+                '#{}'.format(obj.number) if obj_type == 'issues' else 'PR',
                 GITHUB_API_BASE.format(
                     settings.GITHUB_ORGANIZATION,
                     obj.repository.name,
@@ -117,10 +130,10 @@ def send_standup_messages():
             '*Recent*',
             get_text(opened_issues, 'Opened', 'issues'),
             get_text(closed_issues, 'Closed', 'issues'),
-            '\n'.join(['%E2%80%A2 {} comment{} on {} <{}|{}>'.format(
+            '\n'.join(['• {} comment{} on {} <{}|{}>'.format(
                 number,
                 's' if number > 1 else '',
-                '%23{}'.format(obj.number),
+                '#{}'.format(obj.number),
                 GITHUB_API_BASE.format(
                     settings.GITHUB_ORGANIZATION,
                     obj.repository.name,
@@ -134,7 +147,7 @@ def send_standup_messages():
         recent_prs_text = '\n'.join([
             get_text(opened_prs, 'Opened', 'pull'),
             get_text(closed_prs, 'Closed', 'pull'),
-            '\n'.join(['%E2%80%A2 {} comment{} on <{}|{}>'.format(
+            '\n'.join(['• {} comment{} on <{}|{}>'.format(
                 number,
                 's' if number > 1 else '',
                 GITHUB_API_BASE.format(
@@ -152,7 +165,7 @@ def send_standup_messages():
             get_text(ready_to_workon_issues, 'Ready to work on', 'issues'),
             get_text(follow_up_issues, 'Follow up on', 'issues'),
             get_text(review_prs, 'Review', 'pull'),
-            get_text(self_prs, 'Response to any comments on', 'pull'),
+            get_text(self_prs, 'Respond to any comments on', 'pull'),
         ])
         backlog_text = '\n'.join([
             '*Backlog*',
@@ -160,11 +173,21 @@ def send_standup_messages():
             get_text(eng_backlog_issues, 'Eng backlog', 'issues'),
         ])
 
-        urls = [SLACK_POST_MESSAGE_BASE_URL.format(
-            settings.SLACK_TOKEN,
-            '@{}'.format(user.slack_username),
-            unicode(text),
-            'Standup Bot',
-        ) for text in [recent_issues_text, recent_prs_text, upcoming_text, backlog_text]]
-        for url in urls:
-            requests.get(url)
+        text = '\n'.join([recent_issues_text, recent_prs_text, upcoming_text, backlog_text])
+        post_data = SLACK_POST_DATA.copy()
+        post_data['channel'] = '@tomhu'
+        post_data['text'] = text
+
+        response = requests.post(SLACK_POST_MESSAGE_BASE_URL, data=post_data)
+        if not json.loads(response.content)['ok']:
+            logger.error('Could not send standup message to {}'.format(user.slack_username))
+
+
+def send_weekly_update(self):
+    end_time = datetime.now()
+    start_time = end_time - timedelta(days=7)
+
+    opened_issues = Issue.objects.filter(
+        closed_at__isnull=True,
+        created_at__range=(start_time, end_time),
+    )

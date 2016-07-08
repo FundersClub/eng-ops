@@ -29,9 +29,15 @@ class Issue(models.Model):
         )
 
     def __unicode__(self):
-        return '{}: {}'.format(
+        return ('{}: {}'.format(
             self.repository,
             self.title,
+        ).replace('#', '')
+            .replace('<', '')
+            .replace('>', '')
+            .replace('\r', '')
+            .replace('\n', '')
+            .replace('&', '')
         )
 
 
