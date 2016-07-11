@@ -173,7 +173,7 @@ def send_standup_messages():
 
         text = '\n'.join([recent_issues_text, recent_prs_text, upcoming_text, backlog_text])
         post_data = SLACK_POST_DATA.copy()
-        post_data['channel'] = '@tomhu'
+        post_data['channel'] = '@{}'.format(user.slack_username)
         post_data['text'] = text
 
         response = requests.post(SLACK_POST_MESSAGE_BASE_URL, data=post_data)
