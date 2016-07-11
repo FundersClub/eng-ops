@@ -38,8 +38,6 @@ def send_standup_messages():
     start_time = end_time - timedelta(days=1)
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
-        if user.slack_username != 'tomhu':
-            continue
         opened_issues = Issue.objects.filter(
             assignee=user,
             closed_at__isnull=True,
@@ -85,7 +83,7 @@ def send_standup_messages():
         ready_to_workon_issues = Issue.objects.filter(
             assignee=user,
             closed_at__isnull=True,
-            pipeline__name='Ready to do',
+            pipeline__name='Ready To Do',
         )
         follow_up_issues = Issue.objects.filter(
             assignee=user,
@@ -181,13 +179,3 @@ def send_standup_messages():
         response = requests.post(SLACK_POST_MESSAGE_BASE_URL, data=post_data)
         if not json.loads(response.content)['ok']:
             logger.error('Could not send standup message to {}'.format(user.slack_username))
-
-
-def send_weekly_update(self):
-    end_time = datetime.now()
-    start_time = end_time - timedelta(days=7)
-
-    opened_issues = Issue.objects.filter(
-        closed_at__isnull=True,
-        created_at__range=(start_time, end_time),
-    )
