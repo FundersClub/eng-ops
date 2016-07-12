@@ -48,4 +48,5 @@ def handle_request(github_request):
         if obj:
             github_request.handled = True
             setattr(github_request, obj.__class__.__name__.lower(), obj)
-            github_request.save()
+    finally:
+        github_request.save()

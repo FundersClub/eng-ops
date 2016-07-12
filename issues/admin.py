@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.core.urlresolvers import reverse
-from django.utils.html import format_html
+from django.utils.html import (
+    format_html,
+    format_html_join,
+)
 
 from operations.decorators import short_description
 
@@ -38,6 +41,7 @@ class IssueAdmin(admin.ModelAdmin):
     ]
     list_display = [
         'number',
+        'request_link',
         'repository',
         'pipeline',
         'title',
@@ -60,6 +64,18 @@ class IssueAdmin(admin.ModelAdmin):
     @short_description('Estimate')
     def estimate_display(self, obj):
         return obj.estimate if obj.estimate != 0 else '-'
+
+    @short_description('Request')
+    def request_link(self, obj):
+        return format_html_join(
+            u' - ',
+            u'<a href={}>Request</a>',
+            (
+                (
+                    reverse('admin:api_githubrequest_change', args=(request.id,)),
+                ) for request in obj.requests.all()
+            ),
+        )
 
     def has_add_permission(self, request, obj=None):
         return False

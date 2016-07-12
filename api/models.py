@@ -16,7 +16,7 @@ class GithubRequest(models.Model):
     body = models.TextField(null=True, blank=True)
     event = models.CharField(max_length=100)
     handled = models.BooleanField(default=False)
-    issue = models.ForeignKey(Issue, null=True, blank=True)
+    issue = models.ForeignKey(Issue, null=True, blank=True, related_name='requests')
     issuecomment = models.ForeignKey(IssueComment, null=True, blank=True)
     method = models.CharField(max_length=20)
     obj_field = models.CharField(max_length=50, null=True, blank=True)
@@ -37,3 +37,8 @@ class GithubRequest(models.Model):
                 self.obj_field = attr
                 break
         super(GithubRequest, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return '{} - {}:{}'.format(
+            self.time, self.repository, self.action
+        )
