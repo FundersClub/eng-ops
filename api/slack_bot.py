@@ -38,6 +38,8 @@ def send_standup_messages():
     start_time = end_time - timedelta(days=1)
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
+        if user.slack_username != 'tomhu':
+            continue
         opened_issues = Issue.objects.filter(
             creater=user,
             closed_at__isnull=True,
@@ -124,7 +126,7 @@ def send_standup_messages():
                 obj,
             ) for obj in objs])
 
-        recent_issues_text = '\n'.join([
+        recent_text = [
             '*Recent*',
             get_text(opened_issues, 'Opened', 'issues'),
             get_text(closed_issues, 'Closed', 'issues'),
@@ -140,9 +142,6 @@ def send_standup_messages():
                 ),
                 obj,
             ) for (obj, number) in issue_comment_dict.items()]),
-            '',
-        ])
-        recent_prs_text = '\n'.join([
             get_text(opened_prs, 'Opened', 'pull'),
             get_text(closed_prs, 'Closed', 'pull'),
             '\n'.join(['• {} comment{} on <{}|{}>'.format(
@@ -156,24 +155,22 @@ def send_standup_messages():
                 ),
                 obj,
             ) for (obj, number) in pr_comment_dict.items()]),
-            '',
-        ])
-        upcoming_text = '\n'.join([
+        ]
+        upcoming_text = [
             '*Upcoming*',
             get_text(workon_issues, 'Work on', 'issues'),
             get_text(ready_to_workon_issues, 'Ready to work on', 'issues'),
             get_text(follow_up_issues, 'Follow up on', 'issues'),
             get_text(review_prs, 'Review', 'pull'),
             get_text(self_prs, 'Respond to any comments on', 'pull'),
-            '',
-        ])
-        backlog_text = '\n'.join([
+        ]
+        backlog_text = [
             '*Backlog*',
             get_text(product_backlog_issues, 'Product backlog', 'issues'),
             get_text(eng_backlog_issues, 'Eng backlog', 'issues'),
-        ])
+        ]
 
-        text = '\n'.join([recent_issues_text, recent_prs_text, upcoming_text, backlog_text])
+        text = '\n'.join([line for text_set in [recent_text, upcoming_text, backlog_text] for line in text_set if line != ''])
         post_data = SLACK_POST_DATA.copy()
         post_data['channel'] = '@{}'.format(user.slack_username)
         post_data['text'] = text
