@@ -156,6 +156,7 @@ def send_standup_messages():
                 ),
                 obj,
             ) for (obj, number) in pr_comment_dict.items()]),
+            '',
         ])
         upcoming_text = '\n'.join([
             '*Upcoming*',
@@ -164,6 +165,7 @@ def send_standup_messages():
             get_text(follow_up_issues, 'Follow up on', 'issues'),
             get_text(review_prs, 'Review', 'pull'),
             get_text(self_prs, 'Respond to any comments on', 'pull'),
+            '',
         ])
         backlog_text = '\n'.join([
             '*Backlog*',
