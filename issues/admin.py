@@ -7,6 +7,7 @@ from django.utils.html import (
 
 from operations.decorators import short_description
 
+from issues.actions import transfer_as_pr
 from issues.filters import (
     PipelineFilter,
     RepositoryFilter,
@@ -21,11 +22,15 @@ from pipelines.inlines import PipelineStateInline
 
 @admin.register(Issue)
 class IssueAdmin(admin.ModelAdmin):
+    actions = [
+        transfer_as_pr,
+    ]
     fields = [
         'id',
         'number',
         'repository',
         'title',
+        'title_link',
         'creater',
         'assignee',
         'created_at',
@@ -47,6 +52,7 @@ class IssueAdmin(admin.ModelAdmin):
         'repository',
         'pipeline',
         'title',
+        'title_link',
         'estimate_display',
         'created_at',
     ]
@@ -54,7 +60,7 @@ class IssueAdmin(admin.ModelAdmin):
         'id',
         'number',
         'repository',
-        'title',
+        'title_link',
         'creater',
         'assignee',
         'created_at',
@@ -77,6 +83,14 @@ class IssueAdmin(admin.ModelAdmin):
                     reverse('admin:api_githubrequest_change', args=(request.id,)),
                 ) for request in obj.requests.all()
             ),
+        )
+
+    @short_description('Github Page')
+    def title_link(self, obj):
+        return format_html(
+            u'<a href=https://www.github.com/fundersclub/{}/issues/{}>Link</a>'.format(
+                obj.repository.name, obj.number,
+            )
         )
 
     def has_add_permission(self, request, obj=None):
