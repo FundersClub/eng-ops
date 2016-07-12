@@ -34,6 +34,7 @@ class IssueAdmin(admin.ModelAdmin):
         'repository',
         'title',
         'title_link',
+        'pipeline',
         'creater',
         'assignee',
         'created_at',

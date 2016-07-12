@@ -75,6 +75,9 @@ def issue_handler(data):
 
 @transaction.atomic
 def issue_comment_handler(data):
+    if 'pull_request' in data['issue']:
+        return pull_request_review_comment_handler(data)
+
     comment_data = data['comment']
     issue = issue_handler(data)
     user, _ = GithubUser.objects.get_or_create(
@@ -97,7 +100,7 @@ def issue_comment_handler(data):
 
 @transaction.atomic
 def pull_request_handler(data):
-    pr_data = data['pull_request']
+    pr_data = data['pull_request'] if 'pull_request' in data else data['issue']
 
     repository = Repository.objects.get(id=data['repository']['id'])
     user, _ = GithubUser.objects.get_or_create(
@@ -121,7 +124,7 @@ def pull_request_handler(data):
         defaults={
             'body': pr_data['body'],
             'closed_at': pr_data['closed_at'],
-            'merged_at': pr_data['merged_at'],
+            'merged_at': pr_data.get('merged_at', None),
             'title': unicodedata.normalize('NFKD', pr_data['title']).encode('ascii', 'ignore'),
             'user': user,
         }
