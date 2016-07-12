@@ -10,6 +10,7 @@ from operations.decorators import short_description
 from issues.filters import (
     PipelineFilter,
     RepositoryFilter,
+    RequestsFilter,
 )
 from issues.models import (
     Issue,
@@ -38,6 +39,7 @@ class IssueAdmin(admin.ModelAdmin):
     list_filter = [
         PipelineFilter,
         RepositoryFilter,
+        RequestsFilter,
     ]
     list_display = [
         'number',

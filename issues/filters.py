@@ -34,3 +34,20 @@ class RepositoryFilter(admin.SimpleListFilter):
             return queryset
 
         return queryset.filter(repository__name=self.value())
+
+
+class RequestsFilter(admin.SimpleListFilter):
+    title = 'requests'
+    parameter_name = 'requests'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('yes', 'Yes'),
+            ('no', 'No'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+
+        return queryset.filter(requests__isnull=self.value() == 'no')
