@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.utils.html import (
     format_html,
     format_html_join,
@@ -18,6 +19,8 @@ from issues.models import (
     IssueComment,
 )
 from pipelines.inlines import PipelineStateInline
+
+from api.models import GithubRequest
 
 
 @admin.register(Issue)
@@ -80,7 +83,9 @@ class IssueAdmin(admin.ModelAdmin):
             (
                 (
                     reverse('admin:api_githubrequest_change', args=(request.id,)),
-                ) for request in obj.requests.all()
+                ) for request in GithubRequest.objects.filter(
+                    Q(issue=obj) | Q(issuecomment__issue=obj)
+                )
             ),
         )
 

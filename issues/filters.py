@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Q
 
 from pipelines.models import Pipeline
 from repositories.models import Repository
@@ -50,4 +51,14 @@ class RequestsFilter(admin.SimpleListFilter):
         if self.value() is None:
             return queryset
 
-        return queryset.filter(requests__isnull=self.value() == 'no')
+        if self.value() == 'yes':
+            return queryset.filter(
+                Q(requests__isnull=False) |
+                Q(comments__requests__isnull=False)
+            )
+
+        else:
+            return queryset.filter(
+                Q(requests__isnull=True) &
+                Q(comments__requests__isnull=True)
+            )
