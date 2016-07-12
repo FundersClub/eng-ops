@@ -39,3 +39,4 @@ class PullRequestComment(models.Model):
             self.user,
             self.pull_request,
         )
+
