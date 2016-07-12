@@ -17,6 +17,7 @@ class PullRequestAdmin(admin.ModelAdmin):
         'number',
         'repository',
         'title',
+        'title_link',
         'user',
         'assignees',
         'created_at',
@@ -27,7 +28,7 @@ class PullRequestAdmin(admin.ModelAdmin):
     list_display = [
         'number',
         'repository',
-        'title',
+        'title_link',
         'created_at',
         'closed_at',
     ]
@@ -43,6 +44,14 @@ class PullRequestAdmin(admin.ModelAdmin):
         'title',
         'user',
     ]
+
+    @short_description('Github Page')
+    def title_link(self, obj):
+        return format_html(
+            u'<a href=https://www.github.com/fundersclub/{}/pull/{}>{}</a>'.format(
+                obj.repository.name, obj.number, obj.title,
+            )
+        )
 
     def has_add_permission(self, request, obj=None):
         return False

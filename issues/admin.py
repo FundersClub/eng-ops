@@ -51,7 +51,6 @@ class IssueAdmin(admin.ModelAdmin):
         'request_link',
         'repository',
         'pipeline',
-        'title',
         'title_link',
         'estimate_display',
         'created_at',
@@ -88,8 +87,8 @@ class IssueAdmin(admin.ModelAdmin):
     @short_description('Github Page')
     def title_link(self, obj):
         return format_html(
-            u'<a href=https://www.github.com/fundersclub/{}/issues/{}>Link</a>'.format(
-                obj.repository.name, obj.number,
+            u'<a href=https://www.github.com/fundersclub/{}/issues/{}>{}</a>'.format(
+                obj.repository.name, obj.number, obj.title,
             )
         )
 
