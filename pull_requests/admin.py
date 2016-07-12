@@ -42,6 +42,7 @@ class PullRequestAdmin(admin.ModelAdmin):
         'number',
         'repository',
         'title',
+        'title_link',
         'user',
     ]
 
