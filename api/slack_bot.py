@@ -39,7 +39,7 @@ def send_standup_messages():
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
         opened_issues = Issue.objects.filter(
-            assignee=user,
+            creater=user,
             closed_at__isnull=True,
             created_at__range=(start_time, end_time),
         )
