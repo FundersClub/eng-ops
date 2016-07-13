@@ -220,7 +220,7 @@ def _sync_issue(issue):
 
         pipeline_state = PipelineState.objects.filter(
             issue=issue,
-            pipeline=from_pipeline,
+            pipeline=pipeline,
         ).order_by('started_at').last()
 
         event_time = datetime.now() if pipeline_state else issue.created_at
