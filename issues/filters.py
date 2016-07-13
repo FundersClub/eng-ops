@@ -11,9 +11,8 @@ class PipelineFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [
-            (pipeline.name, pipeline.name) for pipeline in Pipeline.objects.all(),
-            ('not_closed', 'Not closed'),
-        ]
+            (pipeline.name, pipeline.name) for pipeline in Pipeline.objects.all()
+        ] + [('not_closed', 'Not closed')]
 
     def queryset(self, request, queryset):
         if self.value() is None:
