@@ -254,9 +254,6 @@ def send_weekly_report():
     ]
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
-        if user.slack_username != 'tomhu':
-            continue
-
         user_closed_issues = Issue.objects.filter(
             Q(closed_at__range=(start_time, end_time)) &
             (
