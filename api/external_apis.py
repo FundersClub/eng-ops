@@ -24,6 +24,14 @@ class ZenhubApi(object):
         return json.loads(response.content)
 
     @classmethod
+    def get_issue(cls, repo_id, issue_id):
+        url = 'repositories/{}/issues/{}'.format(
+            repo_id,
+            issue_id,
+        )
+        return cls._request(url)
+
+    @classmethod
     def get_issue_events(cls, repo_id, issue_id):
         url = 'repositories/{}/issues/{}/events'.format(
             repo_id,

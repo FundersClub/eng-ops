@@ -207,5 +207,8 @@ def _sync_issue(issue):
         if event['type'] == 'estimateIssue':
             issue.estimate = event.get('to_estimate', {'value': 0})['value']
 
+    issue_data = ZenhubApi.get_issue(issue.repository_id, issue.number)
+    issue.estimate = issue_data.get('estimate', {'value': 0}).get('value')
+    if 'pipeline' in issue_data:
+        issue.pipeline, _ = Pipeline.objects.get_or_create(name=issue_data['pipeline']['name'])
     issue.save()
-
