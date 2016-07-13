@@ -1,3 +1,4 @@
+from datetime import datetime
 import unicodedata
 
 from django.db import transaction
@@ -209,6 +210,28 @@ def _sync_issue(issue):
 
     issue_data = ZenhubApi.get_issue(issue.repository_id, issue.number)
     issue.estimate = issue_data.get('estimate', {'value': 0}).get('value')
+
     if 'pipeline' in issue_data:
-        issue.pipeline, _ = Pipeline.objects.get_or_create(name=issue_data['pipeline']['name'])
+        pipeline, _ = Pipeline.objects.get_or_create(name=issue_data['pipeline']['name'])
+
+        if issue.pipeline == pipeline:
+            issue.save()
+            return
+
+        pipeline_state = PipelineState.objects.filter(
+            issue=issue,
+            pipeline=from_pipeline,
+        ).order_by('started_at').last()
+
+        event_time = datetime.now() if pipeline_state else issue.created_at
+        if pipeline_state:
+            pipeline_state.ended_at = event_time
+            pipeline_state.save()
+
+        PipelineState.objects.create(
+            issue=issue,
+            pipeline=pipeline,
+            started_at=event_time,
+        )
+
     issue.save()
