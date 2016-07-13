@@ -35,7 +35,13 @@ SLACK_POST_DATA = {
 
 def send_standup_messages():
     end_time = datetime.now()
-    start_time = end_time - timedelta(days=1)
+
+    if not end_time.weekday() > 4:  # weekend
+        return
+    if end_time.weekday() == 0:  # Monday
+        start_time = end_time - timedelta(days=3)
+    else:
+        start_time = end_time - timedelta(days=1)
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
         opened_issues = Issue.objects.filter(
