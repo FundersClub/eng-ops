@@ -25,12 +25,39 @@ from pull_requests.models import (
 from user_management.models import GithubUser
 
 logger = logging.getLogger(__name__)
+GITHUB_API_BASE = 'https://github.com/{}/{}/{}/{}'
 SLACK_POST_MESSAGE_BASE_URL = 'https://slack.com/api/chat.postMessage'
 SLACK_POST_DATA = {
     'as_user': 'True',
     'token': settings.SLACK_TOKEN,
     'username': 'Standup%20Bot',
 }
+
+
+def get_text(objs, copy, obj_type, format_text='• {} {}: <{}|{}>'):
+    return '\n'.join([format_text.format(
+        copy,
+        '#{}'.format(obj.number) if obj_type == 'issues' else 'PR',
+        GITHUB_API_BASE.format(
+            settings.GITHUB_ORGANIZATION,
+            obj.repository.name,
+            obj_type,
+            obj.number,
+        ),
+        obj,
+    ) for obj in objs])
+
+
+def send_message(text, user):
+    post_data = SLACK_POST_DATA.copy()
+    post_data['channel'] = '@{}'.format(user.slack_username)
+    post_data['text'] = text
+
+    response = requests.post(SLACK_POST_MESSAGE_BASE_URL, data=post_data)
+    if not json.loads(response.content)['ok']:
+        logger.error('Could not send standup message to {}'.format(user.slack_username))
+        return False
+    return True
 
 
 def send_standup_messages():
@@ -115,21 +142,6 @@ def send_standup_messages():
             pipeline__name='Eng Backlog',
         )
 
-        GITHUB_API_BASE = 'https://github.com/{}/{}/{}/{}'
-
-        def get_text(objs, copy, obj_type, format_text='• {} {}: <{}|{}>'):
-            return '\n'.join([format_text.format(
-                copy,
-                '#{}'.format(obj.number) if obj_type == 'issues' else 'PR',
-                GITHUB_API_BASE.format(
-                    settings.GITHUB_ORGANIZATION,
-                    obj.repository.name,
-                    obj_type,
-                    obj.number,
-                ),
-                obj,
-            ) for obj in objs])
-
         recent_text = [
             '*Recent*',
             get_text(opened_issues, 'Opened', 'issues'),
@@ -175,10 +187,149 @@ def send_standup_messages():
         ]
 
         text = '\n'.join([line for text_set in [recent_text, upcoming_text, backlog_text] for line in text_set if line != ''])
-        post_data = SLACK_POST_DATA.copy()
-        post_data['channel'] = '@{}'.format(user.slack_username)
-        post_data['text'] = text
+        send_message(text, user)
 
-        response = requests.post(SLACK_POST_MESSAGE_BASE_URL, data=post_data)
-        if not json.loads(response.content)['ok']:
-            logger.error('Could not send standup message to {}'.format(user.slack_username))
+
+def send_weekly_report():
+    start_date = datetime(2016, 6, 27)
+    end_time = datetime.now()
+
+    if end_time.weekday() != '0':
+        return
+
+    weeks = (end_time - start_date).days / 7.0
+
+    start_time = end_time - timedelta(days=7)
+    last_week = end_time - timedelta(days=14)
+
+    closed_issues = Issue.objects.filter(
+        closed_at__range=(start_time, end_time),
+    ).prefetch_related('labels')
+    closed_issues_count = closed_issues.count()
+    issue_breakdown_dict = {}
+    for issue in closed_issues:
+        for label in issue.labels.all():
+            issue_breakdown_dict[label.name] = issue_breakdown_dict.get(label.name, 0) + 1.0
+        if issue.labels.all().count() == 0:
+            issue_breakdown_dict['None'] = issue_breakdown_dict.get('None', 0) + 1.0
+
+    team_accomplishments = [
+        '*Team Accomplishments*',
+        'Opened {} issues (Avg: {}, Last week: {})'.format(
+            Issue.objects.filter(
+                created_at__range=(start_time, end_time),
+            ).count(),
+            Issue.objects.filter(
+                created_at__range=(start_date, end_time),
+            ).count() / weeks,
+            Issue.objects.filter(
+                created_at__range=(last_week, start_time),
+            ).count(),
+        ),
+        'Closed {} issues (Avg: {}, Last week: {})'.format(
+            closed_issues_count,
+            Issue.objects.filter(
+                closed_at__range=(start_date, end_time),
+            ).count() / weeks,
+            Issue.objects.filter(
+                closed_at__range=(last_week, start_time),
+            ).count(),
+        ),
+        'Completed {} points (Avg: {}, Last week: {})'.format(
+            sum([issue.estimate for issue in closed_issues]),
+            sum([issue.estimate for issue in Issue.objects.filter(
+                closed_at__range=(start_date, end_time),
+            )]) / weeks,
+            sum([issue.estimate for issue in Issue.objects.filter(
+                closed_at__range=(last_week, start_time),
+            )]),
+        ),
+        '',
+        '\n'.join(['• {} (Total: {}, Percent: {}%)'.format(
+            label_name,
+            number,
+            round(100 * number / closed_issues_count, 2),
+        ) for (label_name, number) in issue_breakdown_dict.items()]),
+        '',
+    ]
+
+    for user in GithubUser.objects.filter(slack_username__isnull=False):
+        if user.slack_username != 'tomhu':
+            continue
+
+        user_closed_issues = Issue.objects.filter(
+            Q(closed_at__range=(start_time, end_time)) &
+            (
+                Q(assignee=user) |
+                Q(closed_by=user)
+            )
+        ).prefetch_related('labels')
+
+        user_issue_breakdown_dict = {}
+        for issue in user_closed_issues:
+            for label in issue.labels.all():
+                user_issue_breakdown_dict[label.name] = user_issue_breakdown_dict.get(label.name, 0) + 1.0
+            if issue.labels.all().count() == 0:
+                user_issue_breakdown_dict['None'] = user_issue_breakdown_dict.get('None', 0) + 1.0
+
+        user_closed_issues_count = user_closed_issues.count()
+        personal_accomplishments = [
+            '*Personal Report*',
+            'Opened {} issues (Avg: {}, Last week: {})'.format(
+                Issue.objects.filter(
+                    created_at__range=(start_time, end_time),
+                    creater=user,
+                ).count(),
+                Issue.objects.filter(
+                    created_at__range=(start_date, end_time),
+                    creater=user,
+                ).count() / weeks,
+                Issue.objects.filter(
+                    created_at__range=(last_week, start_time),
+                    creater=user,
+                ).count(),
+            ),
+            'Closed {} issues (Avg: {}, Last week: {})'.format(
+                user_closed_issues_count,
+                Issue.objects.filter(
+                    Q(closed_at__range=(start_date, end_time)) &
+                    (
+                        Q(assignee=user) |
+                        Q(closed_by=user)
+                    )
+                ).count() / weeks,
+                Issue.objects.filter(
+                    Q(closed_at__range=(last_week, start_time)) &
+                    (
+                        Q(assignee=user) |
+                        Q(closed_by=user)
+                    )
+                ).count(),
+            ),
+            'Completed {} points (Avg: {}, Last week: {})'.format(
+                sum([issue.estimate for issue in user_closed_issues]),
+                sum([issue.estimate for issue in Issue.objects.filter(
+                    Q(closed_at__range=(start_date, end_time)) &
+                    (
+                        Q(assignee=user) |
+                        Q(closed_by=user)
+                    )
+                )]) / weeks,
+                sum([issue.estimate for issue in Issue.objects.filter(
+                    Q(closed_at__range=(last_week, start_time)) &
+                    (
+                        Q(assignee=user) |
+                        Q(closed_by=user)
+                    )
+                )]),
+            ),
+            '',
+            '\n'.join(['• {} (Total: {}, Percent: {}%)'.format(
+                label_name,
+                number,
+                round(100 * number / user_closed_issues_count, 2),
+            ) for (label_name, number) in user_issue_breakdown_dict.items()]),
+        ]
+
+        text = '\n'.join(team_accomplishments + personal_accomplishments)
+        send_message(text, user)
