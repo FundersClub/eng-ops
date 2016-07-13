@@ -7,6 +7,7 @@ from datetime import (
 )
 import json
 import logging
+import operator
 
 from django.conf import settings
 from django.db.models import Q
@@ -190,13 +191,22 @@ def send_standup_messages():
         send_message(text, user)
 
 
-def send_weekly_report():
-    start_date = datetime(2016, 6, 27)
-    end_time = datetime.now()
+def _create_label_dict(issues):
+    issue_breakdown_dict = {}
+    for issue in issues:
+        for label in issue.labels.all():
+            issue_breakdown_dict[label.name] = issue_breakdown_dict.get(label.name, 0) + 1.0
+        if issue.labels.all().count() == 0:
+            issue_breakdown_dict['None'] = issue_breakdown_dict.get('None', 0) + 1.0
+    return issue_breakdown_dict
 
+
+def send_weekly_report():
+    end_time = datetime.now()
     if end_time.weekday() != '0':
         return
 
+    start_date = end_time - timedelta(days=28)
     weeks = (end_time - start_date).days / 7.0
 
     start_time = end_time - timedelta(days=7)
@@ -206,12 +216,7 @@ def send_weekly_report():
         closed_at__range=(start_time, end_time),
     ).prefetch_related('labels')
     closed_issues_count = closed_issues.count()
-    issue_breakdown_dict = {}
-    for issue in closed_issues:
-        for label in issue.labels.all():
-            issue_breakdown_dict[label.name] = issue_breakdown_dict.get(label.name, 0) + 1.0
-        if issue.labels.all().count() == 0:
-            issue_breakdown_dict['None'] = issue_breakdown_dict.get('None', 0) + 1.0
+    issue_breakdown_dict = _create_label_dict(closed_issues)
 
     team_accomplishments = [
         '*Team Accomplishments*',
@@ -245,11 +250,15 @@ def send_weekly_report():
             )]),
         ),
         '',
-        '\n'.join(['• {} (Total: {}, Percent: {}%)'.format(
+        '\n'.join(['• {} {}, {}%'.format(
             label_name,
-            number,
+            int(number),
             round(100 * number / closed_issues_count, 2),
-        ) for (label_name, number) in issue_breakdown_dict.items()]),
+        ) for (label_name, number) in sorted(
+            issue_breakdown_dict.items(),
+            key=operator.itemgetter(1),
+            reverse=True,
+        )]),
         '',
     ]
 
@@ -261,13 +270,7 @@ def send_weekly_report():
                 Q(closed_by=user)
             )
         ).prefetch_related('labels')
-
-        user_issue_breakdown_dict = {}
-        for issue in user_closed_issues:
-            for label in issue.labels.all():
-                user_issue_breakdown_dict[label.name] = user_issue_breakdown_dict.get(label.name, 0) + 1.0
-            if issue.labels.all().count() == 0:
-                user_issue_breakdown_dict['None'] = user_issue_breakdown_dict.get('None', 0) + 1.0
+        user_issue_breakdown_dict = _create_label_dict(user_closed_issues)
 
         user_closed_issues_count = user_closed_issues.count()
         personal_accomplishments = [
@@ -321,11 +324,15 @@ def send_weekly_report():
                 )]),
             ),
             '',
-            '\n'.join(['• {} (Total: {}, Percent: {}%)'.format(
+            '\n'.join(['• {} {}, {}%'.format(
                 label_name,
-                number,
+                int(number),
                 round(100 * number / user_closed_issues_count, 2),
-            ) for (label_name, number) in user_issue_breakdown_dict.items()]),
+            ) for (label_name, number) in sorted(
+                user_issue_breakdown_dict.items(),
+                key=operator.itemgetter(1),
+                reverse=True,
+            )]),
         ]
 
         text = '\n'.join(team_accomplishments + personal_accomplishments)
