@@ -52,7 +52,7 @@ class PullRequestAdmin(admin.ModelAdmin):
     ]
 
     @short_description('Request')
-    def request_link(self, obj):
+    def requests_link(self, obj):
         return format_html_join(
             u' - ',
             u'<a href={}>Request</a>',
