@@ -64,7 +64,7 @@ def send_message(text, user):
 def send_standup_messages():
     end_time = datetime.now()
 
-    if not end_time.weekday() > 4:  # weekend
+    if end_time.weekday() > 4:  # weekend
         return
     if end_time.weekday() == 0:  # Monday
         start_time = end_time - timedelta(days=3)
@@ -72,6 +72,8 @@ def send_standup_messages():
         start_time = end_time - timedelta(days=1)
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
+        if user.slack_username != 'tomhu':
+            continue
         opened_issues = Issue.objects.filter(
             creater=user,
             closed_at__isnull=True,
