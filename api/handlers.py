@@ -119,12 +119,12 @@ def pull_request_handler(data):
 
     pull_request, _ = PullRequest.objects.update_or_create(
         created_at=pr_data['created_at'],
-        id=pr_data['id'],
         number=pr_data['number'],
         repository=repository,
         defaults={
             'body': pr_data['body'],
             'closed_at': pr_data['closed_at'],
+            'id': pr_data['id'],  # weird issue regarding pr comments forcing different IDs
             'merged_at': pr_data.get('merged_at', None),
             'title': unicodedata.normalize('NFKD', pr_data['title']).encode('ascii', 'ignore'),
             'user': user,
