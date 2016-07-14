@@ -6,7 +6,9 @@ from django.utils.html import (
     format_html_join,
 )
 
+from api.models import GithubRequest
 from operations.decorators import short_description
+from pipelines.inlines import PipelineStateInline
 
 from issues.actions import transfer_as_pr
 from issues.filters import (
@@ -18,9 +20,6 @@ from issues.models import (
     Issue,
     IssueComment,
 )
-from pipelines.inlines import PipelineStateInline
-
-from api.models import GithubRequest
 
 
 @admin.register(Issue)

@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django.core.urlresolvers import reverse
-from django.utils.html import format_html
+from django.db.models import Q
+from django.utils.html import (
+    format_html,
+    format_html_join,
+)
 
+from api.models import GithubRequest
 from operations.decorators import short_description
 
 from pull_requests.models import (
@@ -26,6 +31,7 @@ class PullRequestAdmin(admin.ModelAdmin):
     ]
     list_display = [
         'number',
+        'requests_link',
         'repository',
         'title_link',
         'created_at',
@@ -45,6 +51,20 @@ class PullRequestAdmin(admin.ModelAdmin):
         'user',
     ]
 
+    @short_description('Request')
+    def request_link(self, obj):
+        return format_html_join(
+            u' - ',
+            u'<a href={}>Request</a>',
+            (
+                (
+                    reverse('admin:api_githubrequest_change', args=(request.id,)),
+                ) for request in GithubRequest.objects.filter(
+                    Q(pullrequest=obj) | Q(pullrequestcomment__pull_request=obj)
+                )
+            ),
+        )
+
     @short_description('Github Page')
     def title_link(self, obj):
         return format_html(
@@ -54,9 +74,6 @@ class PullRequestAdmin(admin.ModelAdmin):
         )
 
     def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
         return False
 
 
