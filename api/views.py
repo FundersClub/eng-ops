@@ -2,6 +2,7 @@ from datetime import datetime
 import hashlib
 import hmac
 import json
+import logging
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -23,6 +24,7 @@ HANDLER_DICT = {
     'pull_request_review_comment': pull_request_review_comment_handler,
     'repository': repository_handler,
 }
+LOG = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -47,6 +49,13 @@ def github_callback(request):
         )
         if 'HTTP_X_GITHUB_EVENT' in request.META:
             handle_request(github_request)
+    else:
+        LOG.warn(
+            'received unauthenticated callback expected {} but got {}'.format(
+                expected_signature,
+                request.META.get('HTTP_X_HUB_SIGNATURE', ''),
+            )
+        )
 
     return HttpResponse()
 
