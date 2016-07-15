@@ -35,7 +35,7 @@ def github_callback(request):
     )
     is_hmac_valid = hmac.compare_digest(
         expected_signature.hexdigest(),
-        request.META.get('HTTP_X_HUB_SIGNATURE', u'')
+        request.META.get('HTTP_X_HUB_SIGNATURE', '')
     )
 
     if is_hmac_valid:
