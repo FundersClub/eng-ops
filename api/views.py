@@ -34,11 +34,11 @@ def github_callback(request):
         settings.ENG_OPS_GITHUB_KEY,
         request.body,
         hashlib.sha1
-    )
-    is_hmac_valid = hmac.compare_digest(
-        expected_signature.hexdigest(),
-        request.META.get('HTTP_X_HUB_SIGNATURE', '')
-    )
+    ).hexdigest()
+    received_signature = request.META.get('HTTP_X_HUB_SIGNATURE', '=').split(
+        '='
+    )[1]
+    is_hmac_valid = hmac.compare_digest(expected_signature, received_signature)
 
     if is_hmac_valid:
         github_request = GithubRequest.objects.create(
@@ -51,11 +51,12 @@ def github_callback(request):
             handle_request(github_request)
     else:
         LOG.warn(
-            'received unauthenticated callback expected {} but got {}'.format(
+            "unauthenticated callback: expected '{}' but got '{}'".format(
                 expected_signature,
-                request.META.get('HTTP_X_HUB_SIGNATURE', ''),
+                received_signature,
             )
         )
+        LOG.warn('header is: {}'.format(request.META['X_HUB_SIGNATURE']))
 
     return HttpResponse()
 
