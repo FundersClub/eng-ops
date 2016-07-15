@@ -1,6 +1,9 @@
 from datetime import datetime
+import hashlib
+import hmac
 import json
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -24,14 +27,26 @@ HANDLER_DICT = {
 
 @csrf_exempt
 def github_callback(request):
-    github_request = GithubRequest.objects.create(
-        body=request.body,
-        event=request.META.get('HTTP_X_GITHUB_EVENT', None),
-        method=request.method,
-        time=datetime.now(),
+    # verify that this request actually comes from github
+    expected_signature = hmac.new(
+        settings.ENG_OPS_GITHUB_KEY,
+        request.body,
+        hashlib.sha1
     )
-    if 'HTTP_X_GITHUB_EVENT' in request.META:
-        handle_request(github_request)
+    is_hmac_valid = hmac.compare_digest(
+        expected_signature.hexdigest(),
+        request.META.get('HTTP_X_HUB_SIGNATURE', u'')
+    )
+
+    if is_hmac_valid:
+        github_request = GithubRequest.objects.create(
+            body=request.body,
+            event=request.META.get('HTTP_X_GITHUB_EVENT', None),
+            method=request.method,
+            time=datetime.now(),
+        )
+        if 'HTTP_X_GITHUB_EVENT' in request.META:
+            handle_request(github_request)
 
     return HttpResponse()
 
