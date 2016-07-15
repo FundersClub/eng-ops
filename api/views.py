@@ -57,7 +57,7 @@ def github_callback(request):
                 received_signature,
             )
         )
-        LOG.warn('header is: {}'.format(request.META['X_HUB_SIGNATURE']))
+        LOG.warn('header is: {}'.format(request.META))
 
     return HttpResponse()
 
