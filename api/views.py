@@ -74,6 +74,7 @@ def github_callback(request):
 
 
 def handle_request(github_request):
+    import ipdb;ipdb.set_trace()
     try:
         content = json.loads(github_request.body)
         handler = HANDLER_DICT[github_request.event]
