@@ -47,6 +47,7 @@ def github_callback(request):
             method=request.method,
             time=datetime.now(),
         )
+
         if 'HTTP_X_GITHUB_EVENT' in request.META:
             handle_request(github_request)
     else:
