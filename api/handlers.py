@@ -130,7 +130,7 @@ def pull_request_handler(data):
             id=pr_data['id'],
             number=pr_data['number'],
             repository=repository,
-
+            user=user,
         )
     pull_request.body = pr_data['body']
     pull_request.closed_at = pr_data['closed_at']
