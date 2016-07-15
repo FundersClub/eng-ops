@@ -1,6 +1,7 @@
 from datetime import datetime
 import unicodedata
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
 from issues.models import (
@@ -117,20 +118,25 @@ def pull_request_handler(data):
         )
         assignees.append(assignee)
 
-    pull_request, _ = PullRequest.objects.update_or_create(
-        created_at=pr_data['created_at'],
-        number=pr_data['number'],
-        repository=repository,
-        defaults={
-            'body': pr_data['body'],
-            'closed_at': pr_data['closed_at'],
-            'id': pr_data['id'],  # weird issue regarding pr comments forcing different IDs
-            'merged_at': pr_data.get('merged_at', None),
-            'title': unicodedata.normalize('NFKD', pr_data['title']).encode('ascii', 'ignore'),
-            'user': user,
-        }
-    )
+    try:
+        pull_request = PullRequest.objects.get(
+            created_at=pr_data['created_at'],
+            number=pr_data['number'],
+            repository=repository,
+        )
+    except ObjectDoesNotExist:
+        pull_request = PullRequest.objects.create(
+            created_at=pr_data['created_at'],
+            id=pr_data['id'],
+            number=pr_data['number'],
+            repository=repository,
 
+        )
+    pull_request.body = pr_data['body']
+    pull_request.closed_at = pr_data['closed_at']
+    pull_request.merged_at = pr_data.get('merged_at', None)
+    pull_request.title = unicodedata.normalize('NFKD', pr_data['title']).encode('ascii', 'ignore'),
+    pull_request.user = user
     pull_request.assignees.clear()
     pull_request.assignees.add(*assignees)
     return pull_request
