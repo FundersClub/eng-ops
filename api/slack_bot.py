@@ -203,7 +203,7 @@ def _create_label_dict(issues):
 
 def send_weekly_report():
     end_time = datetime.now()
-    if end_time.weekday() != '0':
+    if end_time.weekday() != 0:
         return
 
     start_date = end_time - timedelta(days=28)
