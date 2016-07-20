@@ -32,12 +32,16 @@ def issue_handler(data):
     if issue_data['assignee']:
         assignee, _ = GithubUser.objects.get_or_create(
             id=issue_data['assignee']['id'],
-            login=issue_data['assignee']['login'],
+            defaults={
+                'login': issue_data['assignee']['login'],
+            },
         )
 
     creater, _ = GithubUser.objects.get_or_create(
         id=issue_data['user']['id'],
-        login=issue_data['user']['login'],
+        defaults={
+            'login': issue_data['user']['login'],
+        },
     )
 
     issue, _ = Issue.objects.update_or_create(
@@ -84,7 +88,9 @@ def issue_comment_handler(data):
     issue = issue_handler(data)
     user, _ = GithubUser.objects.get_or_create(
         id=comment_data['user']['id'],
-        login=comment_data['user']['login'],
+        defaults={
+            'login': comment_data['user']['login'],
+        },
     )
 
     comment, _ = IssueComment.objects.update_or_create(
@@ -107,14 +113,18 @@ def pull_request_handler(data):
     repository = Repository.objects.get(id=data['repository']['id'])
     user, _ = GithubUser.objects.get_or_create(
         id=pr_data['user']['id'],
-        login=pr_data['user']['login'],
+        defaults={
+            'login': pr_data['user']['login'],
+        },
     )
     assignees = []
 
     for assignee_data in pr_data['assignees']:
         assignee, _ = GithubUser.objects.get_or_create(
             id=assignee_data['id'],
-            login=assignee_data['login'],
+            defaults={
+                'login': assignee_data['login'],
+            },
         )
         assignees.append(assignee)
 
@@ -148,7 +158,9 @@ def pull_request_review_comment_handler(data):
     pull_request = pull_request_handler(data)
     user, _ = GithubUser.objects.get_or_create(
         id=comment_data['user']['id'],
-        login=comment_data['user']['login'],
+        defaults={
+            'login': comment_data['user']['login'],
+        },
     )
 
     comment, _ = PullRequestComment.objects.update_or_create(
