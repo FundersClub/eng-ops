@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from operations.decorators import short_description
+
 from user_management.models import GithubUser
 
 
@@ -7,18 +9,21 @@ from user_management.models import GithubUser
 class GithubUserAdmin(admin.ModelAdmin):
     fields = [
         'id',
-        'login',
+        'logins',
         'slack_username',
     ]
     list_display = [
         'id',
-        'login',
+        'logins_display',
         'slack_username',
     ]
     readonly_fields = [
         'id',
-        'login',
     ]
+
+    @short_description('Logins')
+    def logins_display(self, obj):
+        return ', '.join(obj.logins)
 
     def has_add_permission(self, request, obj=None):
         return False
