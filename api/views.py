@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 import json
 
 from django.http import HttpResponse
@@ -28,7 +28,7 @@ def github_callback(request):
         body=request.body,
         event=request.META.get('HTTP_X_GITHUB_EVENT', 'unknown'),
         method=request.method,
-        time=datetime.now(),
+        time=timezone.now(),
     )
     if 'HTTP_X_GITHUB_EVENT' in request.META:
         handle_request(github_request)

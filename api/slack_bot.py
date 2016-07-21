@@ -1,10 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from datetime import (
-    datetime,
-    timedelta,
-)
+from datetime import timedelta
+from django.utils import timezone
 import json
 import logging
 import operator
@@ -62,7 +60,7 @@ def send_message(text, user):
 
 
 def send_standup_messages():
-    end_time = datetime.now()
+    end_time = timezone.now()
 
     if end_time.weekday() > 4:  # weekend
         return
@@ -202,7 +200,7 @@ def _create_label_dict(issues):
 
 
 def send_weekly_report():
-    end_time = datetime.now()
+    end_time = timezone.now()
     if end_time.weekday() != 0:
         return
 

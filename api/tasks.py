@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 from issues.models import Issue
 
@@ -8,7 +8,7 @@ from api.views import handle_request
 
 
 def sync_issues():
-    minute = datetime.now().minute / 10
+    minute = timezone.now().minute / 10
     issues = Issue.objects.filter(closed_at__isnull=True)
     for issue in issues:
         #  Hack because Zenhub API

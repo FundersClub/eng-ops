@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 import unicodedata
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -241,7 +241,7 @@ def _sync_issue(issue):
             pipeline=pipeline,
         ).order_by('started_at').last()
 
-        event_time = datetime.now() if pipeline_state else issue.created_at
+        event_time = timezone.now() if pipeline_state else issue.created_at
         if pipeline_state:
             pipeline_state.ended_at = event_time
             pipeline_state.save()
