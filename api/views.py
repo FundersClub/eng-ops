@@ -24,7 +24,6 @@ HANDLER_DICT = {
 
 @csrf_exempt
 def github_callback(request):
-    print 'GITHUB CALLBACK', request.META
     github_request = GithubRequest.objects.create(
         body=request.body,
         event=request.META.get('HTTP_X_GITHUB_EVENT', None),
