@@ -26,7 +26,7 @@ HANDLER_DICT = {
 def github_callback(request):
     github_request = GithubRequest.objects.create(
         body=request.body,
-        event=request.META.get('HTTP_X_GITHUB_EVENT', None),
+        event=request.META.get('HTTP_X_GITHUB_EVENT', 'unknown'),
         method=request.method,
         time=datetime.now(),
     )
