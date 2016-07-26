@@ -72,8 +72,6 @@ def send_standup_messages():
         start_time = end_time - timedelta(days=1)
 
     for user in GithubUser.objects.filter(slack_username__isnull=False):
-        if user.slack_username != 'tomhu':
-            continue
         opened_issues = Issue.objects.filter(
             creater=user,
             closed_at__isnull=True,
