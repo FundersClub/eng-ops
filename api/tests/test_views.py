@@ -5,17 +5,13 @@ import mock
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
 from django.test import (
     RequestFactory,
     TestCase,
 )
 
-from .models import GithubRequest
-from .views import (
-    github_callback,
-    verify_signature,
-)
+from api.models import GithubRequest
+from api.views import verify_signature
 
 
 class TestViews(TestCase):
