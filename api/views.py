@@ -27,20 +27,38 @@ HANDLER_DICT = {
 LOG = logging.getLogger(__name__)
 
 
+def verify_signature(request):
+    '''Verify the HMAC signature of a given HTTP request. The signature is
+    passed via the X-Hub-Signature header and contains the SHA1 hash
+    computed from the contents of the request body.
+
+    '''
+    expected_signature = 'sha1={}'.format(
+        hmac.new(
+            settings.ENG_OPS_GITHUB_KEY.encode('utf-8'),
+            request.body,
+            hashlib.sha1
+        ).hexdigest()
+    )
+    received_signature = request.META.get('HTTP_X_HUB_SIGNATURE', '')
+    is_valid = hmac.compare_digest(
+        expected_signature,
+        received_signature
+    )
+
+    if not is_valid:
+        LOG.warn(
+            "unauthenticated callback: expected '{}' but got '{}'".format(
+                expected_signature,
+                received_signature,
+            )
+        )
+
+    return is_valid
+
 @csrf_exempt
 def github_callback(request):
-    # verify that this request actually comes from github
-    expected_signature = hmac.new(
-        settings.ENG_OPS_GITHUB_KEY,
-        request.body,
-        hashlib.sha1
-    ).hexdigest()
-    received_signature = request.META.get('HTTP_X_HUB_SIGNATURE', '=').split(
-        '='
-    )[1]
-    is_hmac_valid = hmac.compare_digest(expected_signature, received_signature)
-
-    if is_hmac_valid:
+    if verify_signature(request):
         github_request = GithubRequest.objects.create(
             body=request.body,
             event=request.META.get('HTTP_X_GITHUB_EVENT', 'unknown'),
@@ -50,13 +68,6 @@ def github_callback(request):
 
         if 'HTTP_X_GITHUB_EVENT' in request.META:
             handle_request(github_request)
-    else:
-        LOG.warn(
-            "unauthenticated callback: expected '{}' but got '{}'".format(
-                expected_signature,
-                received_signature,
-            )
-        )
 
     return HttpResponse()
 
