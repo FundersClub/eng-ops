@@ -37,7 +37,7 @@ def verify_signature(request):
         hmac.new(
             settings.ENG_OPS_GITHUB_KEY.encode('utf-8'),
             request.body,
-            hashlib.sha1
+            hashlib.sha1,
         ).hexdigest()
     )
     received_signature = request.META.get('HTTP_X_HUB_SIGNATURE', '')
@@ -47,8 +47,8 @@ def verify_signature(request):
     )
 
     if not is_valid:
-        LOG.warn(
-            "unauthenticated callback: expected '{}' but got '{}'".format(
+        LOG.error(
+            'Unauthenticated Github request: expected {} but got {}'.format(
                 expected_signature,
                 received_signature,
             )
