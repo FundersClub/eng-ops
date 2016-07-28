@@ -45,10 +45,10 @@ class TestAPITasks(TestCase):
         retry_failed_requests()
         m_handle_request.assert_called_once_with(gh_req)
 
-    @mock.patch('api.tasks.datetime')
+    @mock.patch('api.tasks.timezone')
     @mock.patch('api.tasks._sync_issue')
-    def test_sync_issues(self, m__sync_issue, m_datetime):
-        m_datetime.now.return_value = mock.Mock(minute=10)
+    def test_sync_issues(self, m__sync_issue, m_timezone):
+        m_timezone.now.return_value = mock.Mock(minute=10)
 
         user = GithubUser.objects.create(id=1, logins=['username'])
         repo = Repository.objects.create(id=1, name='repo', private=False)
