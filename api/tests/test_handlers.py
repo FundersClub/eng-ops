@@ -1,10 +1,11 @@
 from django.test import TestCase
 
-from api.handlers import issue_handler
-from issues.models import Issue
 from user_management.models import GithubUser
 
-def TestIssueHandler(TestCase):
+from api.handlers import issue_handler
+
+
+class TestIssueHandler(TestCase):
     def setUp(self):
         self.ex_edit_issue = {
             'title': 'Found a bug',
@@ -39,6 +40,6 @@ def TestIssueHandler(TestCase):
         }
 
     def test_issue_handler(self):
-        issue = issue_handler(self.ex_edit_issue)
+        issue_handler(self.ex_edit_issue)
 
         self.assertNotNone(GithubUser.objects.get(logins__contains=['octocat']))

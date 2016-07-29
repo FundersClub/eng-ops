@@ -4,14 +4,15 @@ import mock
 from django.test import TestCase
 from django.utils import timezone
 
+from issues.models import Issue
+from repositories.models import Repository
+from user_management.models import GithubUser
+
 from api.models import GithubRequest
 from api.tasks import (
     sync_issues,
     retry_failed_requests,
 )
-from issues.models import Issue
-from repositories.models import Repository
-from user_management.models import GithubUser
 
 
 class TestAPITasks(TestCase):
