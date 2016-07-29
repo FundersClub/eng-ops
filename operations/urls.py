@@ -23,7 +23,7 @@ admin.site.login = RedirectView.as_view(
 urlpatterns = [
     url(r'^{}/'.format(settings.ADMIN_URL), include(admin.site.urls)),
     url(r'^{}/'.format(settings.SITE_URL), include('allauth.urls')),
-    url(r'^{}/callback/$'.format(settings.SITE_URL), github_callback),
+    url(r'^{}/callback/$'.format(settings.SITE_URL), github_callback, name='github_callback'),
     url(r'^{}/accounts/login/$'.format(settings.SITE_URL), allauth_login, name='account_login'),
     url(r'^{}/accounts/signup/$'.format(settings.SITE_URL), allauth_login, name='account_signup'),
     url(r'^{}/accounts/logout/$'.format(settings.SITE_URL), allauth_logout, name='account_logout'),

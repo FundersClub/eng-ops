@@ -1,0 +1,17 @@
+[run]
+source =
+    api
+    labels
+    operations
+    pull_requests
+    issues
+    pipelines
+    repositories
+omit =
+    */migrations/*
+    */user_management/*
+    */bin/*
+    tools
+
+[html]
+title = "Eng-ops test coverage"
