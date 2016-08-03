@@ -183,9 +183,7 @@ def repository_handler(data):
     repository, _ = Repository.objects.update_or_create(
         id=repository_data['id'],
         name=repository_data['name'],
-        default={
-            'private': repository_data['private'],
-        }
+        private=repository_data['private'],
     )
 
     return repository
