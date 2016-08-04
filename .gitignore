@@ -10,7 +10,6 @@ env
 htmlcov/
 
 staticfiles/
-bin/
 ~
 
 \#*\#
