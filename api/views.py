@@ -48,7 +48,8 @@ def verify_signature(request):
 
     if not is_valid:
         LOG.error(
-            'Unauthenticated Github request: expected {} but got {}'.format(
+            'Unauthenticated Github request from {}: expected {} but got {}'.format(
+                request.META.get('HTTP_REFERER', 'n/a'),
                 expected_signature,
                 received_signature,
             )
