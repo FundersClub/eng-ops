@@ -145,10 +145,11 @@ def pull_request_handler(data):
     pull_request.body = pr_data['body']
     pull_request.closed_at = pr_data['closed_at']
     pull_request.merged_at = pr_data.get('merged_at', None)
-    pull_request.title = unicodedata.normalize('NFKD', pr_data['title']).encode('ascii', 'ignore'),
+    pull_request.title = unicodedata.normalize('NFKD', pr_data['title']).encode('ascii', 'ignore')
     pull_request.user = user
     pull_request.assignees.clear()
     pull_request.assignees.add(*assignees)
+    pull_request.save()
     return pull_request
 
 
