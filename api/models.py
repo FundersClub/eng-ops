@@ -25,6 +25,9 @@ class GithubRequest(models.Model):
     repository = models.ForeignKey(Repository, null=True, blank=True)
     time = models.DateTimeField()
 
+    class Meta:
+        ordering = ('time', )
+
     def save(self, *args, **kwargs):
         for attr in [
                 'issue',
