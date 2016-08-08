@@ -57,18 +57,19 @@ class IssueAdmin(admin.ModelAdmin):
         'title_link',
         'estimate_display',
         'created_at',
+        'closed_at',
     ]
     readonly_fields = [
+        'assignee',
+        'body',
+        'closed_at',
+        'creater',
+        'created_at',
         'id',
+        'labels',
         'number',
         'repository',
         'title_link',
-        'creater',
-        'assignee',
-        'created_at',
-        'closed_at',
-        'labels',
-        'body',
     ]
 
     @short_description('Estimate')
