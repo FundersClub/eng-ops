@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
 from api.handlers import (
+    commit_comment_handler,
     issue_handler,
     issue_comment_handler,
     pull_request_handler,
@@ -18,6 +19,7 @@ from api.handlers import (
 from api.models import GithubRequest
 
 HANDLER_DICT = {
+    'commit_comment': commit_comment_handler,  # not handling
     'issues': issue_handler,
     'issue_comment': issue_comment_handler,
     'pull_request': pull_request_handler,

@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.html import (
-    escape,
     format_html,
     format_html_join,
 )

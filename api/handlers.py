@@ -24,6 +24,10 @@ from user_management.models import GithubUser
 from api.external_apis import ZenhubApi
 
 
+def commit_comment_handler(data):
+    return None
+
+
 @transaction.atomic
 def issue_handler(data):
     issue_data = data['issue']
