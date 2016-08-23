@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.html import (
+    escape,
     format_html,
     format_html_join,
 )
@@ -94,7 +95,7 @@ class IssueAdmin(admin.ModelAdmin):
     def title_link(self, obj):
         return format_html(
             u'<a href=https://www.github.com/fundersclub/{}/issues/{}>{}</a>'.format(
-                obj.repository.name, obj.number, obj.title,
+                obj.repository.name, obj.number, obj.title.replace('{', '{{').replace('}', '}}'),
             )
         )
 
