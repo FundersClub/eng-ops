@@ -9,9 +9,9 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
 from api.handlers import (
-    commit_comment_handler,
     issue_handler,
     issue_comment_handler,
+    no_action_handler,
     pull_request_handler,
     pull_request_review_comment_handler,
     repository_handler,
@@ -19,7 +19,6 @@ from api.handlers import (
 from api.models import GithubRequest
 
 HANDLER_DICT = {
-    'commit_comment': commit_comment_handler,  # not handling
     'issues': issue_handler,
     'issue_comment': issue_comment_handler,
     'pull_request': pull_request_handler,
@@ -59,6 +58,7 @@ def verify_signature(request):
 
     return is_valid
 
+
 @csrf_exempt
 def github_callback(request):
     if verify_signature(request):
@@ -78,7 +78,7 @@ def github_callback(request):
 def handle_request(github_request):
     try:
         content = json.loads(github_request.body)
-        handler = HANDLER_DICT[github_request.event]
+        handler = HANDLER_DICT.get(github_request.event, no_action_handler)
         github_request.action = content['action']
     except ValueError as e:
         print e

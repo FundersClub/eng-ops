@@ -24,7 +24,7 @@ from user_management.models import GithubUser
 from api.external_apis import ZenhubApi
 
 
-def commit_comment_handler(data):
+def no_action_handler(data):
     return None
 
 
