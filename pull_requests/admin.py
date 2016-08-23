@@ -69,7 +69,7 @@ class PullRequestAdmin(admin.ModelAdmin):
     def title_link(self, obj):
         return format_html(
             u'<a href=https://www.github.com/fundersclub/{}/pull/{}>{}</a>'.format(
-                obj.repository.name, obj.number, obj.title,
+                obj.repository.name, obj.number, obj.title.replace('{', '{{').replace('}', '}}'),
             )
         )
 
