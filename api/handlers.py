@@ -256,5 +256,6 @@ def _sync_issue(issue):
             pipeline=pipeline,
             started_at=event_time,
         )
+        issue.pipeline = pipeline
 
     issue.save()
