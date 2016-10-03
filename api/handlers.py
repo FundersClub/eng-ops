@@ -62,12 +62,13 @@ def issue_handler(data):
         }
     )
 
-    issue.labels.add(
-        *Label.objects.filter(
-            name__in=[label['name'] for label in issue_data['labels']],
-            repositories__id=data['repository']['id'],
+    for label in issue_data['labels']:
+        label_obj, created = Label.objects.get_or_create(
+            name=label['name'],
         )
-    )
+        if created:
+            label_obj.repositories.add(data['repository']['id'])
+        issue.labels.add(label_obj)
 
     issue.save()
     _sync_issue(issue)
