@@ -248,7 +248,7 @@ def send_weekly_report():
             )]),
         ),
         '',
-        '\n'.join(['• {} {}, {}%'.format(
+        u'\n'.join([u'• {} {}, {}%'.format(
             label_name,
             int(number),
             round(100 * number / closed_issues_count, 2),
@@ -322,7 +322,7 @@ def send_weekly_report():
                 )]),
             ),
             '',
-            '\n'.join(['• {} {}, {}%'.format(
+            u'\n'.join([u'• {} {}, {}%'.format(
                 label_name,
                 int(number),
                 round(100 * number / user_closed_issues_count, 2),
