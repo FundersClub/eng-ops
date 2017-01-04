@@ -1,7 +1,7 @@
 backports.shutil-get-terminal-size==1.0.0
 decorator==4.0.10
 dj-database-url==0.4.1
-Django==1.9.10 # pyup: >=1.9,<1.10
+Django==1.9.12 # pyup: >=1.9,<1.10
 django-allauth==0.28.0
 django-extensions==1.6.7
 django-filter==0.13.0
