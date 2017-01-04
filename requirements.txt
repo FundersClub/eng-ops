@@ -17,7 +17,7 @@ Markdown==2.6.7
 mock==1.0.1
 oauthlib==1.1.2
 pathlib2==2.1.0
-pexpect==4.1.0
+pexpect==4.2.1
 pickleshare==0.7.2
 psycopg2==2.6.1
 ptyprocess==0.5.1
