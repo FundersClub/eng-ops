@@ -24,7 +24,7 @@ ptyprocess==0.5.1
 python-openid==2.2.5
 raven==5.32.0
 requests==2.12.4
-requests-oauthlib==0.6.1
+requests-oauthlib==0.7.0
 simplegeneric==0.8.1
 six==1.10.0
 traitlets==4.2.1
