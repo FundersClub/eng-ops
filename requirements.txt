@@ -11,7 +11,7 @@ gunicorn==19.6.0
 ipdb==0.10.1
 ipython
 ipython-genutils==0.1.0
-Markdown==2.6.6
+Markdown==2.6.7
 # Pinned to mock 1.0.1 because of setuptools version conflict
 # https://github.com/testing-cabal/mock/issues/261#issuecomment-120880453
 mock==1.0.1
