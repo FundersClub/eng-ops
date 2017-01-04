@@ -14,7 +14,7 @@ ipython-genutils==0.1.0
 Markdown==2.6.6
 # Pinned to mock 1.0.1 because of setuptools version conflict
 # https://github.com/testing-cabal/mock/issues/261#issuecomment-120880453
-mock==1.0.1
+mock==2.0.0
 oauthlib==1.1.2
 pathlib2==2.1.0
 pexpect==4.1.0
