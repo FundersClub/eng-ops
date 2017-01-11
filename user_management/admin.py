@@ -11,9 +11,11 @@ class GithubUserAdmin(admin.ModelAdmin):
         'id',
         'logins',
         'slack_username',
+        'is_subscribed',
     ]
     list_display = [
         'id',
+        'is_subscribed',
         'logins_display',
         'slack_username',
     ]
