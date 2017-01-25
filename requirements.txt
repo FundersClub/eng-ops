@@ -3,7 +3,7 @@ decorator==4.0.10
 dj-database-url==0.4.1
 Django==1.9.12 # pyup: >=1.9,<1.10
 django-allauth==0.30.0
-django-extensions==1.7.5
+django-extensions==1.7.6
 django-filter==1.0.1
 djangorestframework==3.5.3
 gnureadline==6.3.3
