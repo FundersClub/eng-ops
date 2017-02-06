@@ -64,7 +64,6 @@ LOCAL_APPS = [
     'api',
     'issues',
     'labels',
-    'pipelines',
     'pull_requests',
     'repositories',
     'user_management',

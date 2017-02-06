@@ -1,27 +1,7 @@
 from django.contrib import admin
 from django.db.models import Q
 
-from pipelines.models import Pipeline
 from repositories.models import Repository
-
-
-class PipelineFilter(admin.SimpleListFilter):
-    title = 'pipeline'
-    parameter_name = 'pipeline'
-
-    def lookups(self, request, model_admin):
-        return [
-            (pipeline.name, pipeline.name) for pipeline in Pipeline.objects.all()
-        ] + [('not_closed', 'Not closed')]
-
-    def queryset(self, request, queryset):
-        if self.value() is None:
-            return queryset
-
-        if self.value() == 'not_closed':
-            return queryset.exclude(pipeline__name='Closed')
-
-        return queryset.filter(pipeline__name=self.value())
 
 
 class RepositoryFilter(admin.SimpleListFilter):

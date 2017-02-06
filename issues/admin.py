@@ -8,11 +8,9 @@ from django.utils.html import (
 
 from api.models import GithubRequest
 from operations.decorators import short_description
-from pipelines.inlines import PipelineStateInline
 
 from issues.actions import transfer_as_pr
 from issues.filters import (
-    PipelineFilter,
     RepositoryFilter,
     RequestsFilter,
 )
@@ -33,7 +31,6 @@ class IssueAdmin(admin.ModelAdmin):
         'repository',
         'title',
         'title_link',
-        'pipeline',
         'creater',
         'assignee',
         'created_at',
@@ -41,11 +38,7 @@ class IssueAdmin(admin.ModelAdmin):
         'labels',
         'body',
     ]
-    inlines = [
-        PipelineStateInline,
-    ]
     list_filter = [
-        PipelineFilter,
         RepositoryFilter,
         RequestsFilter,
     ]
@@ -53,7 +46,6 @@ class IssueAdmin(admin.ModelAdmin):
         'number',
         'request_link',
         'repository',
-        'pipeline',
         'title_link',
         'estimate_display',
         'created_at',
