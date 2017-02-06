@@ -1,5 +1,3 @@
-import mock
-
 from django.test import TestCase
 
 from user_management.models import GithubUser
@@ -164,8 +162,7 @@ class TestIssueHandler(TestCase):
             },
         }
 
-    @mock.patch('api.handlers._sync_issue')
-    def test_issue_handler(self, m__sync_issue):
+    def test_issue_handler(self):
         issue_handler(self.ex_edit_issue)
 
         self.assertIsNotNone(
