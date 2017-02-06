@@ -9,10 +9,7 @@ from repositories.models import Repository
 from user_management.models import GithubUser
 
 from api.models import GithubRequest
-from api.tasks import (
-    sync_issues,
-    retry_failed_requests,
-)
+from api.tasks import retry_failed_requests
 
 
 class TestAPITasks(TestCase):
@@ -45,34 +42,3 @@ class TestAPITasks(TestCase):
 
         retry_failed_requests()
         m_handle_request.assert_called_once_with(gh_req)
-
-    @mock.patch('api.tasks.timezone')
-    @mock.patch('api.tasks._sync_issue')
-    def test_sync_issues(self, m__sync_issue, m_timezone):
-        m_timezone.now.return_value = mock.Mock(minute=10)
-
-        user = GithubUser.objects.create(id=1, logins=['username'])
-        repo = Repository.objects.create(id=1, name='repo', private=False)
-        open_issue = Issue.objects.create(
-            id=1,
-            creater=user,
-            created_at=timezone.now(),
-            number=1,
-            title=u'my fake open issue',
-            closed_at=None,
-            repository=repo,
-        )
-        Issue.objects.create(
-            id=2,
-            creater=user,
-            created_at=timezone.now(),
-            number=2,
-            title=u'my fake closed issue',
-            closed_at=timezone.now(),
-            repository=repo,
-        )
-
-        sync_issues()
-
-        self.assertEqual(m__sync_issue.call_count, 1)
-        m__sync_issue.assert_called_once_with(open_issue)

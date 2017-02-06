@@ -16,7 +16,6 @@ from issues.models import (
     Issue,
     IssueComment,
 )
-from pipelines.models import Pipeline
 from pull_requests.models import (
     PullRequest,
     PullRequestComment,
@@ -110,17 +109,6 @@ def send_standup_messages():
         workon_issues = Issue.objects.filter(
             assignee=user,
             closed_at__isnull=True,
-            pipeline__in=Pipeline.objects.filter(name__in=['In Progress', 'In Review']),
-        )
-        ready_to_workon_issues = Issue.objects.filter(
-            assignee=user,
-            closed_at__isnull=True,
-            pipeline__name='Ready To Do',
-        )
-        follow_up_issues = Issue.objects.filter(
-            assignee=user,
-            closed_at__isnull=True,
-            pipeline__in=Pipeline.objects.filter(name__in=['Requires Followup', 'New Issues']),
         )
         review_prs = PullRequest.objects.filter(
             assignees=user,
@@ -129,16 +117,6 @@ def send_standup_messages():
         self_prs = PullRequest.objects.filter(
             closed_at__isnull=True,
             user=user,
-        )
-        product_backlog_issues = Issue.objects.filter(
-            assignee=user,
-            closed_at__isnull=True,
-            pipeline__name='Product Backlog',
-        )
-        eng_backlog_issues = Issue.objects.filter(
-            assignee=user,
-            closed_at__isnull=True,
-            pipeline__name='Eng Backlog',
         )
 
         recent_text = [
@@ -174,18 +152,11 @@ def send_standup_messages():
         upcoming_text = [
             '*Upcoming*',
             get_text(workon_issues, 'Work on', 'issues'),
-            get_text(ready_to_workon_issues, 'Ready to work on', 'issues'),
-            get_text(follow_up_issues, 'Follow up on', 'issues'),
             get_text(review_prs, 'Review', 'pull'),
             get_text(self_prs, 'Respond to any comments on', 'pull'),
         ]
-        backlog_text = [
-            '*Backlog*',
-            get_text(product_backlog_issues, 'Product backlog', 'issues'),
-            get_text(eng_backlog_issues, 'Eng backlog', 'issues'),
-        ]
 
-        text = '\n'.join([line for text_set in [recent_text, upcoming_text, backlog_text] for line in text_set if line != ''])
+        text = '\n'.join([line for text_set in [recent_text, upcoming_text] for line in text_set if line != ''])
         send_message(text, user)
 
 

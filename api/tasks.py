@@ -1,20 +1,5 @@
-from django.utils import timezone
-
-from issues.models import Issue
-
-from api.handlers import _sync_issue
 from api.models import GithubRequest
 from api.views import handle_request
-
-
-def sync_issues():
-    minute = timezone.now().minute / 10
-    issues = Issue.objects.filter(closed_at__isnull=True)
-    for issue in issues:
-        # Hack to prevent getting rate-limited by Zenhub API
-        # Separate issues into 6 buckets depending on the 10's minute
-        if issue.id % 6 == minute:
-            _sync_issue(issue)
 
 
 def retry_failed_requests():
@@ -22,5 +7,5 @@ def retry_failed_requests():
     for failed_request in failed_requests:
         try:
             handle_request(failed_request)
-        except AttributeError as e:
+        except AttributeError:
             continue
