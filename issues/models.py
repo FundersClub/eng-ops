@@ -36,6 +36,8 @@ class Issue(models.Model):
             .replace('\r', '')
             .replace('\n', '')
             .replace('&', '')
+            .replace('{', '{{')
+            .replace('}', '}}')
         )
 
 

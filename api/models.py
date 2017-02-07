@@ -26,7 +26,7 @@ class GithubRequest(models.Model):
     time = models.DateTimeField()
 
     class Meta:
-        ordering = ('time', )
+        ordering = ('-time', )
 
     def save(self, *args, **kwargs):
         for attr in [
