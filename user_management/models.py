@@ -17,7 +17,6 @@ class GithubUserManager(models.Manager):
 
 
 class GithubUser(models.Model):
-
     id = models.PositiveIntegerField(primary_key=True)
     is_subscribed = models.BooleanField(default=True)
     logins = ArrayField(models.CharField(max_length=100, null=True), default=[])
