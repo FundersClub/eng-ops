@@ -6,7 +6,6 @@ from user_management.models import GithubUser
 
 
 class Issue(models.Model):
-
     assignee = models.ForeignKey(GithubUser, null=True, blank=True, related_name='assigned_issues')
     body = models.TextField(null=True, blank=True)
     closed_at = models.DateTimeField(null=True, blank=True)

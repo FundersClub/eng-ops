@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+    <form method="GET">
+        <div>
+            Start date: <input type="date" name="start_date" value="{{ start_date }}">
+        </div>
+        <div>
+            End date: <input type="date" name="end_date" value="{{ end_date }}">
+        </div>
+        <p>
+            <input type="submit" value="Update">
+        </p>
+    </form>
+    <table>
+        <thead>
+            <th>User</th>
+            {% for label in labels %}
+                <th>{{ label }}</th>
+            {% endfor %}
+        </thead>
+        <tbody>
+            {% for row in user_data %}
+                <tr>
+                    {% for datum in row %}
+                        <td>{{ datum }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    <strong>Total</strong>
+                </td>
+                {% for total in totals %}
+                    <td>{{ total }}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
