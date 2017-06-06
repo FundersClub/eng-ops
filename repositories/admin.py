@@ -81,10 +81,6 @@ class RepositoryAdmin(admin.ModelAdmin):
         # labels by ids to not have to worry about unicode stuff.
         repo = Repository.objects.get(id=repository_id)
         label_ids = [
-            43,  # 30 effort task
-            34,  # 90 effort task
-            49,  # 180 effort task
-            47,  # 360 effort task
             42,  # P0
             40,  # P1
             50,  # P2
@@ -93,7 +89,9 @@ class RepositoryAdmin(admin.ModelAdmin):
             41,  # data
             46,  # eng
             51,  # enhance
+            58,  # improve
             48,  # feature
+            57,  # okr
             44,  # support
         ]
         user_names = [
