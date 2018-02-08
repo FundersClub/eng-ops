@@ -19,7 +19,7 @@ oauthlib==2.0.1
 pathlib2==2.1.0
 pexpect==4.2.1
 pickleshare==0.7.4
-psycopg2==2.7.1
+psycopg2==2.7.4
 ptyprocess==0.5.1
 python-openid==2.2.5
 raven==5.32.0
